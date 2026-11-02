@@ -1,5 +1,8 @@
 # FX Facial Assistant
 
+**責任者:** [tumayouzyo](https://github.com/tumayouzyo)  
+**作成者:** Codex
+
 ![Unity](https://img.shields.io/badge/Unity-2022.3-222c37?logo=unity)
 ![VRChat](https://img.shields.io/badge/VRChat-Avatars_3.0-19b9e7)
 ![License](https://img.shields.io/badge/License-MIT-green)
@@ -28,25 +31,15 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 | 描画 | Built-in Render Pipeline |
 | 利用場所 | Unity Editorのみ |
 
-VRChat SDKは付属していません。先にVCCなどでAvatars SDKを導入してください。SDK 3.10.6のImport Workerで確認した既知問題と対処方法は、[トラブルシューティング](Documentation~/troubleshooting.md)に記載しています。
+先にVCCなどでAvatars SDKを導入してください。SDK 3.10.6のImport Workerで確認した既知問題と対処方法は、[トラブルシューティング](Documentation~/troubleshooting.md)に記載しています。
 
 ## インストール
 
-### Unity Package Manager
+1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をダウンロードします。
+2. VRChat Avatars SDK導入済みのUnityプロジェクトで、ダウンロードしたファイルを開いてImportします。
+3. `Tools > FXFacialAssistant` を開きます。
 
-1. VRChat Avatars SDKを導入済みのプロジェクトを開きます。
-2. `Window > Package Manager` を開きます。
-3. `+ > Add package from git URL...` を選び、次のURLを入力します。
-
-```text
-https://github.com/tumayouzyo/FXFacialAssistant.git
-```
-
-既に `Assets/TY_FXFacialAssistant` 版を使用している場合は、二重に導入しないでください。既存フォルダをプロジェクト外へ退避してからPackage Manager版を導入します。
-
-### Assetsフォルダへ配置
-
-リポジトリをダウンロードし、`Editor` フォルダと `Editor.meta` を `Assets/TY_FXFacialAssistant/` 配下へ配置する方法でも使用できます。
+インポート先は `Assets/TY_FXFacialAssistant` です。
 
 ## 基本操作
 
@@ -103,4 +96,4 @@ AnimationとPNGの保存は独立しています。同名ファイルは対象�
 
 ## ライセンス
 
-[MIT License](LICENSE)。VRChat SDK、アバターモデル、マテリアル、シェーダーなどの外部アセットは含みません。
+[MIT License](LICENSE)。
