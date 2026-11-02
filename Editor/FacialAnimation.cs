@@ -14,7 +14,7 @@ namespace TY.FXFacialAssistant
         {
             var path = session.BindingPath(avatarRoot);
             if (!session.Shapes.Any(s => s.Include))
-                throw new InvalidOperationException("記録するBlendShapeを1つ以上チェックしてください。");
+                throw FacialErrors.Operation(FacialProblem.RecordingSelection, "記録するBlendShapeを1つ以上チェックしてください。");
             var clip = new AnimationClip { name = name, frameRate = FrameRate };
             try
             {
@@ -40,7 +40,7 @@ namespace TY.FXFacialAssistant
 
         public static string Load(AnimationClip clip, FacialMeshSession session, Transform avatarRoot)
         {
-            if (!clip) throw new ArgumentException("読み込むAnimationClipを指定してください。");
+            if (!clip) throw FacialErrors.Argument(FacialProblem.LoadClip, "読み込むAnimationClipを指定してください。");
             var path = session.BindingPath(avatarRoot);
             var bindings = AnimationUtility.GetCurveBindings(clip);
             var imported = bindings.Where(b => b.path == path && b.type == typeof(SkinnedMeshRenderer)
@@ -48,9 +48,12 @@ namespace TY.FXFacialAssistant
                 .Select(b => new { Shape = session.Shapes.FirstOrDefault(s => "blendShape." + s.Name == b.propertyName),
                     Curve = AnimationUtility.GetEditorCurve(clip, b) })
                 .Where(item => item.Shape != null && item.Curve != null && item.Curve.length > 0).ToList();
-            if (imported.Count == 0)
-                throw new InvalidOperationException("選択中メッシュに一致するBlendShapeカーブがありません。アバターを基準とするパスを確認してください。");
-            foreach (var shape in session.Shapes) shape.Include = false;
+            foreach (var shape in session.Shapes)
+            {
+                shape.Include = false;
+                shape.Value = 0f;
+                shape.Transition = false;
+            }
             foreach (var item in imported)
             {
                 item.Shape.Include = true;
@@ -58,9 +61,23 @@ namespace TY.FXFacialAssistant
                 item.Shape.Transition = item.Curve.keys.Any(k => !Mathf.Approximately(k.value, item.Shape.Value));
             }
             var ignored = bindings.Length - imported.Count + AnimationUtility.GetObjectReferenceCurveBindings(clip).Length;
-            return imported.Count + "項目を最終フレームから読み込みました。"
-                + (ignored > 0 ? " 対象外のカーブ " + ignored + " 件は読み込んでいません。" : "")
-                + " 再保存時は固定値／直線補間になります。";
+            return FacialLocalization.Format("{0}項目を最終フレームから読み込みました。", imported.Count)
+                + (ignored > 0 ? FacialLocalization.Format(" 対象外のカーブ {0} 件は読み込んでいません。", ignored) : "")
+                + FacialLocalization.Text(" 再保存時は固定値／直線補間になります。");
+        }
+
+        public static void SetDefault(AnimationClip clip, FacialMeshSession session, Transform root, bool apply)
+        {
+            var path = session.BindingPath(root);
+            foreach (var shape in session.Shapes)
+            {
+                if (!shape.HasCapturedValue) { shape.CapturedValue = shape.DefaultValue; shape.HasCapturedValue = true; }
+                var curve = clip ? AnimationUtility.GetEditorCurve(clip, EditorCurveBinding.FloatCurve(
+                    path, typeof(SkinnedMeshRenderer), "blendShape." + shape.Name)) : null;
+                shape.DefaultValue = curve != null && curve.length > 0 ? curve.Evaluate(clip.length)
+                    : clip ? 0f : shape.CapturedValue;
+                if (apply) shape.Value = shape.DefaultValue;
+            }
         }
     }
 }

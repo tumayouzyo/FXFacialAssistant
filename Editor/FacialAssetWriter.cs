@@ -13,22 +13,22 @@ namespace TY.FXFacialAssistant
         public string IconPath { get; }
         public string ClipName => Path.GetFileNameWithoutExtension(ClipPath);
 
-        public FacialSavePaths(string folder, string inputName)
+        public FacialSavePaths(string folder, string inputName, bool prefix = true)
         {
             FacialAssetWriter.ValidateFolder(folder);
-            var name = NormalizeName(inputName);
-            ClipPath = folder + "/FA_" + name + ".anim";
-            IconPath = folder + "/FA_" + name + ".png";
+            var name = NormalizeName(inputName, prefix);
+            ClipPath = folder + "/" + (prefix ? "FA_" : "") + name + ".anim";
+            IconPath = folder + "/" + (prefix ? "FA_" : "") + name + ".png";
         }
 
-        internal static string NormalizeName(string input)
+        internal static string NormalizeName(string input, bool stripPrefix = true)
         {
             var name = (input ?? "").Trim();
-            if (name.StartsWith("FA_", StringComparison.Ordinal)) name = name.Substring(3);
+            if (stripPrefix && name.StartsWith("FA_", StringComparison.Ordinal)) name = name.Substring(3);
             if (string.IsNullOrWhiteSpace(name) || name.EndsWith(".", StringComparison.Ordinal)
                 || name.IndexOfAny("<>:\"/\\|?*".ToCharArray()) >= 0 || name.Any(char.IsControl))
-                throw new ArgumentException("保存名を入力してください。ファイル名に使えない文字や末尾のピリオドは使用できません。");
-            if (name.Length > 100) throw new ArgumentException("保存名は100文字以内で入力してください。");
+                throw FacialErrors.Argument(FacialProblem.SaveName, "保存名を入力してください。ファイル名に使えない文字や末尾のピリオドは使用できません。");
+            if (name.Length > 100) throw FacialErrors.Argument(FacialProblem.SaveName, "保存名は100文字以内で入力してください。");
             return name;
         }
     }
@@ -39,10 +39,10 @@ namespace TY.FXFacialAssistant
         {
             if (string.IsNullOrEmpty(folder) || (folder != "Assets" && !folder.StartsWith("Assets/", StringComparison.Ordinal))
                 || folder.Contains('\\') || folder.Split('/').Any(p => string.IsNullOrWhiteSpace(p) || p == "." || p == ".."))
-                throw new ArgumentException("保存先は、このプロジェクトのAssetsフォルダ内を指定してください。");
+                throw FacialErrors.Argument(FacialProblem.SaveFolder, "保存先は、このプロジェクトのAssetsフォルダ内を指定してください。");
             foreach (var part in folder.Split('/'))
                 if (part.IndexOfAny("<>:\"|?*".ToCharArray()) >= 0 || part.Any(char.IsControl) || part.EndsWith("."))
-                    throw new ArgumentException("保存先フォルダ名に無効な文字が含まれています。");
+                    throw FacialErrors.Argument(FacialProblem.SaveFolder, "保存先フォルダ名に無効な文字が含まれています。");
         }
 
         public static string FromAbsoluteFolder(string absolute)
@@ -51,14 +51,11 @@ namespace TY.FXFacialAssistant
             var selected = Path.GetFullPath(absolute).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             if (string.Equals(root, selected, StringComparison.OrdinalIgnoreCase)) return "Assets";
             if (!selected.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("Animationとアイコンの保存先は、このプロジェクトのAssetsフォルダ内を選択してください。");
+                throw FacialErrors.Argument(FacialProblem.SaveFolder, "Animationとアイコンの保存先は、このプロジェクトのAssetsフォルダ内を選択してください。");
             var relative = "Assets/" + selected.Substring(root.Length + 1).Replace('\\', '/');
             ValidateFolder(relative);
             return relative;
         }
-
-        public static bool HasExistingFiles(FacialSavePaths paths)
-            => File.Exists(paths.ClipPath) || File.Exists(paths.IconPath);
 
         public static AnimationClip SaveAnimation(FacialSavePaths paths, AnimationClip clip)
         {
@@ -166,7 +163,7 @@ namespace TY.FXFacialAssistant
             var parent = Path.GetDirectoryName(folder).Replace('\\', '/');
             EnsureFolder(parent);
             if (string.IsNullOrEmpty(AssetDatabase.CreateFolder(parent, Path.GetFileName(folder))))
-                throw new IOException("保存先フォルダを作成できませんでした: " + folder);
+                throw new IOException(FacialLocalization.Format("保存先フォルダを作成できませんでした: {0}", folder));
         }
     }
 }

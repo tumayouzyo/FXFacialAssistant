@@ -1,7 +1,20 @@
-.blacklist-settings { flex-grow: 1; padding: 10px; }
+.settings-root { flex-grow: 1; padding: 14px; min-height: 0; }
+.settings-content { flex-grow: 1; flex-basis: 0; min-height: 0; }
+.settings-section { flex-shrink: 0; margin-bottom: 18px; padding-bottom: 12px; }
+.settings-group { flex-shrink: 0; margin-bottom: 20px; }
 .settings-heading { -unity-font-style: bold; margin-bottom: 8px; }
-.settings-description { white-space: normal; margin-top: 5px; margin-bottom: 5px; flex-shrink: 0; }
-.rules-scroll { flex-grow: 1; flex-basis: 0; min-height: 160px; margin-top: 5px; margin-bottom: 5px; }
-.rules-editor { flex-shrink: 0; min-height: 160px; }
-.settings-actions { flex-direction: row; flex-shrink: 0; margin-top: 7px; }
+.settings-language-buttons { flex-direction: row; margin-bottom: 4px; }
+.settings-language-buttons > .unity-button { min-width: 100px; margin-right: 8px; }
+.settings-description { white-space: normal; margin-top: 5px; margin-bottom: 8px; flex-shrink: 0; }
+.rules-scroll { height: 200px; flex-shrink: 0; margin-top: 8px; margin-bottom: 10px; }
+.rules-editor { flex-shrink: 0; min-height: 190px; }
+.defaults-button { align-self: flex-start; margin-top: 8px; }
+.settings-footer { flex-shrink: 0; margin-top: 10px; padding-top: 10px; border-top-width: 1px; border-top-color: rgba(128, 128, 128, 0.5); }
+.footer-credit { white-space: normal; margin-bottom: 8px; }
+.footer-links { flex-direction: row; flex-wrap: wrap; margin-bottom: 8px; }
+.footer-links > .unity-button { margin-right: 8px; margin-bottom: 4px; }
+.footer-details { flex-shrink: 0; margin-top: 4px; }
+.footer-details-scroll { height: 160px; flex-shrink: 0; margin-top: 6px; }
+.settings-actions { flex-direction: row; flex-shrink: 0; margin-top: 14px; }
+.settings-actions > .unity-button { min-width: 100px; margin-left: 8px; }
 .settings-spacer { flex-grow: 1; }

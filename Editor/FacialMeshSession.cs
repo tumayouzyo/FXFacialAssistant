@@ -11,6 +11,8 @@ namespace TY.FXFacialAssistant
     {
         public string Name;
         public float DefaultValue;
+        public float CapturedValue;
+        public bool HasCapturedValue;
         public float Value;
         public bool Include = true;
         public bool DefaultInclude = true;
@@ -38,7 +40,7 @@ namespace TY.FXFacialAssistant
         public static FacialMeshSession Capture(SkinnedMeshRenderer source, Transform avatarRoot, BlendShapeBlacklist blacklist = null)
         {
             if (!source || !source.sharedMesh || source.sharedMesh.blendShapeCount == 0)
-                throw new ArgumentException("BlendShapeを持つSkinnedMeshRendererを指定してください。");
+                throw FacialErrors.Argument(FacialProblem.Mesh, "BlendShapeを持つSkinnedMeshRendererを指定してください。");
             ValidateBindingPath(source.transform, avatarRoot);
             var session = new FacialMeshSession { renderer = source, mesh = source.sharedMesh };
             var names = new HashSet<string>(StringComparer.Ordinal);
@@ -46,11 +48,11 @@ namespace TY.FXFacialAssistant
             {
                 var name = source.sharedMesh.GetBlendShapeName(i);
                 if (!names.Add(name))
-                    throw new InvalidOperationException("同名のBlendShapeがあるため記録できません: " + name);
+                    throw new InvalidOperationException(FacialLocalization.Format("同名のBlendShapeがあるため記録できません: {0}", name));
                 var value = source.GetBlendShapeWeight(i);
                 var include = blacklist == null || !blacklist.Matches(name);
                 session.shapes.Add(new BlendShapeValue { Name = name, DefaultValue = value, Value = value,
-                    Include = include, DefaultInclude = include });
+                    CapturedValue = value, HasCapturedValue = true, Include = include, DefaultInclude = include });
             }
             return session;
         }
@@ -72,7 +74,7 @@ namespace TY.FXFacialAssistant
         public void ApplyTo(SkinnedMeshRenderer previewRenderer)
         {
             if (!IsValid || !previewRenderer || previewRenderer.sharedMesh != mesh)
-                throw new InvalidOperationException("メッシュが変更されました。アバターを再読み込みしてください。");
+                throw FacialErrors.Operation(FacialProblem.Preview, "メッシュが変更されました。アバターを再読み込みしてください。");
             for (var i = 0; i < shapes.Count; i++)
                 previewRenderer.SetBlendShapeWeight(i, shapes[i].Value);
         }
@@ -80,7 +82,7 @@ namespace TY.FXFacialAssistant
         public string BindingPath(Transform avatarRoot)
         {
             if (!IsValid)
-                throw new InvalidOperationException("有効なメッシュを選択してください。");
+                throw FacialErrors.Operation(FacialProblem.Mesh, "有効なメッシュを選択してください。");
             ValidateBindingPath(renderer.transform, avatarRoot);
             return AnimationUtility.CalculateTransformPath(renderer.transform, avatarRoot);
         }
@@ -97,7 +99,7 @@ namespace TY.FXFacialAssistant
                 foreach (Transform sibling in node.parent)
                     if (sibling.name == node.name) sameName++;
                 if (sameName > 1)
-                    throw new InvalidOperationException("同じ階層に同名オブジェクトがあるためAnimationの対象を特定できません: " + node.name);
+                    throw new InvalidOperationException(FacialLocalization.Format("同じ階層に同名オブジェクトがあるためAnimationの対象を特定できません: {0}", node.name));
             }
             if (target.GetComponents<SkinnedMeshRenderer>().Length != 1)
                 throw new InvalidOperationException("同じオブジェクトに複数のSkinnedMeshRendererがあるため記録できません。");

@@ -26,6 +26,7 @@ namespace TY.FXFacialAssistant
         private readonly Dictionary<Transform, Transform> transforms = new Dictionary<Transform, Transform>();
         private readonly Dictionary<SkinnedMeshRenderer, SkinnedMeshRenderer> renderers
             = new Dictionary<SkinnedMeshRenderer, SkinnedMeshRenderer>();
+        private readonly Dictionary<SkinnedMeshRenderer, Mesh> bakedMeshes = new Dictionary<SkinnedMeshRenderer, Mesh>();
         private readonly GameObject root;
         private readonly Vector3 headPosition;
         private readonly float scale;
@@ -40,6 +41,7 @@ namespace TY.FXFacialAssistant
                 root = new GameObject(avatar.name + " Facial Preview") { hideFlags = HideFlags.HideAndDontSave };
                 utility.AddSingleGO(root);
                 root.transform.localScale = avatar.transform.lossyScale;
+                root.SetActive(avatar.gameObject.activeSelf);
                 transforms.Add(avatar.transform, root.transform);
                 foreach (Transform child in avatar.transform) CopyTransform(child, root.transform);
                 CopyRenderers(avatar.gameObject);
@@ -70,7 +72,7 @@ namespace TY.FXFacialAssistant
             }
             catch
             {
-                utility.Cleanup();
+                Dispose();
                 throw;
             }
         }
@@ -103,6 +105,21 @@ namespace TY.FXFacialAssistant
                     copy.SetBlendShapeWeight(i, source.GetBlendShapeWeight(i));
                 CopyRendererProperties(source, copy);
                 renderers.Add(source, copy);
+                if (!source.enabled || !source.gameObject.activeInHierarchy || source.forceRenderingOff)
+                {
+                    copy.forceRenderingOff = true;
+                    continue;
+                }
+                // Editor rendering can reuse stale skinning within one frame. Bake only edited meshes after initialization.
+                var baked = new Mesh { hideFlags = HideFlags.HideAndDontSave };
+                bakedMeshes.Add(copy, baked);
+                baked.MarkDynamic();
+                copy.BakeMesh(baked);
+                var surface = new GameObject("Facial preview surface") { hideFlags = HideFlags.HideAndDontSave };
+                surface.transform.SetParent(copy.transform, false);
+                surface.AddComponent<MeshFilter>().sharedMesh = baked;
+                CopyRendererProperties(copy, surface.AddComponent<MeshRenderer>());
+                copy.forceRenderingOff = true;
             }
             foreach (var source in avatar.GetComponentsInChildren<MeshRenderer>(true))
             {
@@ -137,8 +154,13 @@ namespace TY.FXFacialAssistant
         public void Apply(FacialMeshSession session)
         {
             if (!session.IsValid || !renderers.TryGetValue(session.Renderer, out var target))
-                throw new InvalidOperationException("プレビューを再読み込みしてください。");
+                throw FacialErrors.Operation(FacialProblem.Preview, "プレビューを再読み込みしてください。");
+            var changed = false;
+            for (var i = 0; i < session.Shapes.Count; i++)
+                if (target.GetBlendShapeWeight(i) != session.Shapes[i].Value) { changed = true; break; }
+            if (!changed) return;
             session.ApplyTo(target);
+            if (bakedMeshes.TryGetValue(target, out var baked)) target.BakeMesh(baked);
         }
 
         public Texture Render(FacialCameraSettings settings, int pixels)
@@ -162,8 +184,8 @@ namespace TY.FXFacialAssistant
             var size = pixels / EditorGUIUtility.pixelsPerPoint;
             utility.BeginPreview(new Rect(0f, 0f, size, size), GUIStyle.none);
             try { utility.Render(false, false); }
-            finally { utility.EndPreview(); }
-            return utility.camera.targetTexture;
+            catch { utility.EndPreview(); throw; }
+            return utility.EndPreview();
         }
 
         public Texture2D Capture(FacialCameraSettings settings)
@@ -238,6 +260,11 @@ namespace TY.FXFacialAssistant
             finally { RenderTexture.active = previous; }
         }
 
-        public void Dispose() => utility.Cleanup();
+        public void Dispose()
+        {
+            utility.Cleanup();
+            foreach (var mesh in bakedMeshes.Values) if (mesh) Object.DestroyImmediate(mesh);
+            bakedMeshes.Clear();
+        }
     }
 }

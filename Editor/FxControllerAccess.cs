@@ -10,6 +10,12 @@ namespace TY.FXFacialAssistant
 {
     internal static class FxControllerAccess
     {
+        public static void ValidateCurrent(VRCAvatarDescriptor avatar, AnimatorController expected)
+        {
+            var current = Resolve(avatar, out var message);
+            if (!current || current != expected)
+                throw FacialErrors.Operation(FacialProblem.Fx, FacialLocalization.Format("FX設定が変わりました。アバターを再読み込みしてください。 {0}", FacialLocalization.Text(message)));
+        }
         public static AnimatorController Resolve(VRCAvatarDescriptor avatar, out string message)
         {
             message = "";
