@@ -103,4 +103,4 @@ Facial/
 
 [MIT License](LICENSE)
 
-機能・レイアウトの参考元: [VRCAvatarEditor / gatosyocora](https://github.com/gatosyocora/VRCAvatarEditor)。コードの直接引用は行っていない。
+機能・レイアウトの参考元: [VRCAvatarEditor / gatosyocora]
