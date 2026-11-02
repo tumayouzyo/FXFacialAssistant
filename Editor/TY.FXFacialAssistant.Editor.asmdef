@@ -1,0 +1,7 @@
+{
+  "name": "TY.FXFacialAssistant.Editor",
+  "rootNamespace": "TY.FXFacialAssistant",
+  "references": ["VRC.SDK3A", "VRC.SDKBase"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

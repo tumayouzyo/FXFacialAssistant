@@ -1,0 +1,58 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+  <ui:Style src="FXFacialAssistantWindow.uss" />
+  <ui:VisualElement class="facial-root">
+    <ui:VisualElement class="row toolbar">
+      <uie:ObjectField name="avatarField" label="アバター" class="grow" />
+      <ui:Button name="reloadButton" text="アバター再読み込み" />
+      <ui:Button name="settingsButton" text="設定" />
+    </ui:VisualElement>
+    <ui:VisualElement class="row mesh-toolbar">
+      <uie:ObjectField name="meshField" label="編集メッシュ" class="grow" />
+      <ui:Button name="selectedMeshButton" text="選択中メッシュを指定" tooltip="Hierarchyで現在選択しているオブジェクトのSkinnedMeshRendererを編集対象にします。指定中のアバター配下で、BlendShapeを持つメッシュを選んでください。" />
+    </ui:VisualElement>
+    <ui:VisualElement name="workspace" class="grow">
+      <ui:VisualElement class="row upper">
+        <ui:VisualElement name="previewControls" class="preview-panel">
+          <ui:VisualElement class="row">
+            <ui:Image name="previewImage" tooltip="右ドラッグで回転。中ボタンドラッグで高さ調整。ホイールを上へ回すと接近、下へ回すと離れます。" class="preview-image" />
+            <ui:Slider name="heightSlider" direction="Vertical" low-value="-400" high-value="500" tooltip="Head基準の上下移動" class="height-slider" />
+          </ui:VisualElement>
+          <ui:Slider name="focalLengthSlider" label="焦点距離 (mm)" low-value="20" high-value="200" show-input-field="true" tooltip="35mm判（36×24mm）の縦画角を基準に、中央を正方形へクロップ。初期値85mm。" />
+          <ui:VisualElement class="row">
+            <ui:Label text="右：回転 / 中：高さ / ホイール：距離" class="grow hint" />
+            <ui:Button name="frontButton" text="正面" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="leftLayer" class="layer-panel grow" />
+        <ui:VisualElement name="rightLayer" class="layer-panel grow" />
+      </ui:VisualElement>
+      <ui:Label name="fxPath" class="hint path-label" />
+      <ui:VisualElement class="row clip-toolbar">
+        <uie:ObjectField name="loadClipField" label="Animation読込" tooltip="AnimationClipをドラッグ＆ドロップできます" class="grow" />
+        <ui:Button name="loadClipButton" text="読み込み" />
+      </ui:VisualElement>
+      <ui:VisualElement class="row shape-toolbar">
+        <ui:Toggle name="allShapesToggle" label="表示項目をすべて記録" value="true" tooltip="現在表示しているBlendShapeの記録チェックを一括で切り替えます。非表示の項目は記録対象になりません。" />
+        <ui:Label name="meshSummary" />
+        <ui:Button name="applyBlacklistButton" text="ブラックリスト適用" tooltip="設定に保存されたブラックリストを適用し、一致する項目の記録チェックをオフにします。他の項目のチェックと、編集中のBlendShape値は維持します。ルールの編集は上部の設定から行えます。" />
+        <ui:Toggle name="hideBlacklistToggle" label="非表示" tooltip="ブラックリストに一致する項目を一覧から隠し、Animationの記録対象からも外します。オフにすると再表示しますが、記録チェックはオフのままです。BlendShapeの値とプレビューは変わりません。" />
+        <ui:VisualElement class="grow" />
+        <ui:Label name="transitionHeading" text="10f" tooltip="各行の末尾チェックをオンにすると、メッシュ指定時の値から編集した表情までを0～10フレーム（60fps、約0.167秒）で直線補間して記録します。オフの場合は固定値を記録します。" class="hint transition-heading" />
+      </ui:VisualElement>
+      <ui:ScrollView name="shapeList" class="shape-list grow" />
+      <ui:TextField name="animationName" label="保存名" tooltip="Animation・PNGともに FA_ を自動で付与します" />
+      <ui:VisualElement class="row">
+        <ui:TextField name="saveFolder" label="保存先" is-read-only="true" class="grow" />
+        <ui:Button name="folderButton" text="フォルダ選択" />
+        <ui:Button name="defaultFolderButton" text="FX基準に戻す" />
+      </ui:VisualElement>
+      <ui:Label name="outputSummary" class="hint path-label" />
+      <ui:VisualElement class="row save-row">
+        <ui:Button name="saveButton" text="表情Animationを保存" class="save-primary" />
+        <ui:Button name="saveIconButton" text="透過アイコンを保存" class="save-primary" />
+        <ui:Button name="highlightFolderButton" text="保存先をハイライト" class="save-folder" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="statusArea" />
+  </ui:VisualElement>
+</ui:UXML>
