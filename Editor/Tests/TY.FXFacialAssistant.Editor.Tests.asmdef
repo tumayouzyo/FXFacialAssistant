@@ -1,0 +1,9 @@
+{
+  "name": "TY.FXFacialAssistant.Editor.Tests",
+  "references": ["TY.FXFacialAssistant.Editor", "VRC.SDK3A", "VRC.SDKBase", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "VRCSDK3A.dll", "VRCSDKBase.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}
