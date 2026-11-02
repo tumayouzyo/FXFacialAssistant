@@ -35,16 +35,15 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 
 ## インストール
 
-1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をダウンロードする。
-2. VRChat Avatars SDK導入済みのUnityプロジェクトで、ダウンロードしたファイルを開いてImportする。
-3. `Tools > FXFacialAssistant` を開く。
+1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をDL、Import。
+2. `Tools > FXFacialAssistant` を開く。
 
 インポート先は `Assets/TY_FXFacialAssistant` 。
 
 ## 基本操作
 
 1. `Tools > FXFacialAssistant` を開き、Hierarchyのアバターを指定する。
-2. BlendShapeを持つ `Body` があれば自動選択する。必要に応じて「編集メッシュ」を指定する。
+2. BlendShapeを持つ `Body` があれば自動選択する。必要に応じて「編集メッシュ」で指定。
 3. プレビューを見ながら、BlendShapeの値と記録チェックを調整する。
 4. 保存名を入力し、「表情Animationを保存」「透過アイコンを保存」をそれぞれ押す。
 5. FXへ割り当てる場合は、左右のステート欄へAnimationClipを指定する。
@@ -69,11 +68,9 @@ Facial/
   FA_笑顔.png
 ```
 
-AnimationとPNGの保存は独立している。同名ファイルは対象側だけ上書きを確認し、上書き後もGUIDを維持する。
-
 ## ブラックリスト
 
-初期ルールは `vrc.*`、`vrm.*`、`VRM_*`、`ex_*` と、ARKit・VRCFTの標準名など。**大文字・小文字は区別しない。**
+初期ルールは `vrc.*`、`vrm.*`、`ex_*` と、ARKit・VRCFTの標準名など。**大文字・小文字は区別しない。**
 
 - 上部の「設定」で、1行ごとのルールを追加・削除
 - `*` は任意の文字列、`?` は任意の1文字に一致
@@ -92,8 +89,8 @@ AnimationとPNGの保存は独立している。同名ファイルは対象側�
 
 ## 開発・不具合報告
 
-不具合は [Issues](https://github.com/tumayouzyo/FXFacialAssistant/issues) へ、Unity・SDKのバージョンと再現手順を添えて報告する。開発時のテスト手順は [CONTRIBUTING](CONTRIBUTING.md) に記載。
+不具合は [Issues](https://github.com/tumayouzyo/FXFacialAssistant/issues) へ。開発時のテスト手順は [CONTRIBUTING](CONTRIBUTING.md) に記載。
 
 ## ライセンス
 
-[MIT License](LICENSE)。
+[MIT License](LICENSE)
