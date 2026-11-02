@@ -7,7 +7,7 @@
 ![VRChat](https://img.shields.io/badge/VRChat-Avatars_3.0-19b9e7)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animationと透過アイコンを作成するUnity Editor拡張です。
+VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animationと透過アイコンを作成するUnity Editor拡張。
 
 **メニュー:** `Tools > FXFacialAssistant`
 
@@ -31,23 +31,23 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 | 描画 | Built-in Render Pipeline |
 | 利用場所 | Unity Editorのみ |
 
-先にVCCなどでAvatars SDKを導入してください。SDK 3.10.6のImport Workerで確認した既知問題と対処方法は、[トラブルシューティング](Documentation~/troubleshooting.md)に記載しています。
+先にVCCなどでAvatars SDKを導入する。SDK 3.10.6のImport Workerで確認した既知問題と対処方法は、[トラブルシューティング](Documentation~/troubleshooting.md)に記載。
 
 ## インストール
 
-1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をダウンロードします。
-2. VRChat Avatars SDK導入済みのUnityプロジェクトで、ダウンロードしたファイルを開いてImportします。
-3. `Tools > FXFacialAssistant` を開きます。
+1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をダウンロードする。
+2. VRChat Avatars SDK導入済みのUnityプロジェクトで、ダウンロードしたファイルを開いてImportする。
+3. `Tools > FXFacialAssistant` を開く。
 
-インポート先は `Assets/TY_FXFacialAssistant` です。
+インポート先は `Assets/TY_FXFacialAssistant` 。
 
 ## 基本操作
 
-1. `Tools > FXFacialAssistant` を開き、Hierarchyのアバターを指定します。
-2. BlendShapeを持つ `Body` があれば自動選択します。必要に応じて「編集メッシュ」を指定します。
-3. プレビューを見ながら、BlendShapeの値と記録チェックを調整します。
-4. 保存名を入力し、「表情Animationを保存」「透過アイコンを保存」をそれぞれ押します。
-5. FXへ割り当てる場合は、左右のステート欄へAnimationClipを指定します。
+1. `Tools > FXFacialAssistant` を開き、Hierarchyのアバターを指定する。
+2. BlendShapeを持つ `Body` があれば自動選択する。必要に応じて「編集メッシュ」を指定する。
+3. プレビューを見ながら、BlendShapeの値と記録チェックを調整する。
+4. 保存名を入力し、「表情Animationを保存」「透過アイコンを保存」をそれぞれ押す。
+5. FXへ割り当てる場合は、左右のステート欄へAnimationClipを指定する。
 
 | プレビュー操作 | 動作 |
 | --- | --- |
@@ -57,11 +57,11 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 | 高さスライダー | 高さ調整。中ボタンドラッグと同期 |
 | 焦点距離 | 初期値85mm、20～200mm |
 
-各行末尾の `10f` チェックは、指定時の値から編集値までを0～10フレーム、60fpsで記録します。オフの場合は固定表情です。詳細説明はマウスオーバーでも表示します。
+各行末尾の `10f` チェックは、指定時の値から編集値までを0～10フレーム、60fpsで記録する。オフの場合は固定表情。詳細説明はマウスオーバーでも表示する。
 
 ## 保存先
 
-初期値はFX Controllerと同じフォルダ内の `Facial` です。Assets内の任意フォルダへ変更できます。
+初期値はFX Controllerと同じフォルダ内の `Facial` 。Assets内の任意フォルダへ変更できる。
 
 ```text
 Facial/
@@ -69,11 +69,11 @@ Facial/
   FA_笑顔.png
 ```
 
-AnimationとPNGの保存は独立しています。同名ファイルは対象側だけ上書きを確認し、上書き後もGUIDを維持します。
+AnimationとPNGの保存は独立している。同名ファイルは対象側だけ上書きを確認し、上書き後もGUIDを維持する。
 
 ## ブラックリスト
 
-初期ルールは `vrc.*`、`vrm.*`、`VRM_*`、`ex_*` と、ARKit・VRCFTの標準名などです。**大文字・小文字は区別しません。**
+初期ルールは `vrc.*`、`vrm.*`、`VRM_*`、`ex_*` と、ARKit・VRCFTの標準名など。**大文字・小文字は区別しない。**
 
 - 上部の「設定」で、1行ごとのルールを追加・削除
 - `*` は任意の文字列、`?` は任意の1文字に一致
@@ -82,17 +82,17 @@ AnimationとPNGの保存は独立しています。同名ファイルは対象�
 
 ## 使用上の注意
 
-- FXステートへの割り当てはControllerを直接編集します。共有Controllerを使う他のアバターにも反映されます。
-- レイヤーやステートを自動作成せず、Transition・Parameter・Write Defaultsも変更しません。
-- BlendTree、同期レイヤー、AnimatorOverrideControllerの編集には未対応です。
-- Clipの読み込みは最終時刻のBlendShape値を取得します。元のキー配置・補間をそのまま保持する機能ではありません。
-- プレビューは描画用の階層を作成します。PhysBone、Constraint、NDMFなどのビルド処理や特殊なシーン依存描画は再現しません。
+- FXステートへの割り当てはControllerを直接編集する。共有Controllerを使う他のアバターにも反映される。
+- レイヤーやステートを自動作成せず、Transition・Parameter・Write Defaultsも変更しない。
+- BlendTree、同期レイヤー、AnimatorOverrideControllerの編集には未対応。
+- Clipの読み込みは最終時刻のBlendShape値を取得する。元のキー配置・補間をそのまま保持する機能ではない。
+- プレビューは描画用の階層を作成する。PhysBone、Constraint、NDMFなどのビルド処理や特殊なシーン依存描画は再現しない。
 
-詳しくは [操作マニュアル](Documentation~/manual.md) と [トラブルシューティング](Documentation~/troubleshooting.md) を参照してください。
+詳しくは [操作マニュアル](Documentation~/manual.md) と [トラブルシューティング](Documentation~/troubleshooting.md) を参照。
 
 ## 開発・不具合報告
 
-不具合は [Issues](https://github.com/tumayouzyo/FXFacialAssistant/issues) へ、Unity・SDKのバージョンと再現手順を添えて報告してください。開発時のテスト手順は [CONTRIBUTING](CONTRIBUTING.md) に記載しています。
+不具合は [Issues](https://github.com/tumayouzyo/FXFacialAssistant/issues) へ、Unity・SDKのバージョンと再現手順を添えて報告する。開発時のテスト手順は [CONTRIBUTING](CONTRIBUTING.md) に記載。
 
 ## ライセンス
 
