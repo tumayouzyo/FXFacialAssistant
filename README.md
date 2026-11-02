@@ -1,11 +1,10 @@
 # FX Facial Assistant
-
-**責任者:** [tumayouzyo](https://github.com/tumayouzyo)  
-**作成者:** Codex
-
 ![Unity](https://img.shields.io/badge/Unity-2022.3-222c37?logo=unity)
 ![VRChat](https://img.shields.io/badge/VRChat-Avatars_3.0-19b9e7)
 ![License](https://img.shields.io/badge/License-MIT-green)
+
+**責任者:** [tumayouzyo](https://github.com/tumayouzyo)  
+**作成者:** Codex
 
 VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animationと透過アイコンを作成するUnity Editor拡張。
 
