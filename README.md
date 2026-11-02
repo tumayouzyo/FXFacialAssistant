@@ -44,7 +44,7 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 1. `Tools > FXFacialAssistant` を開き、Hierarchyのアバターを指定する。
 2. BlendShapeを持つ `Body` があれば自動選択する。必要に応じて「編集メッシュ」で指定。
 3. プレビューを見ながら、BlendShapeの値と記録チェックを調整する。
-4. 保存名を入力し、「表情Animationを保存」「透過アイコンを保存」をそれぞれ押す。
+4. 保存名を入力し、「表情アニメーションを保存」「透過アイコンを保存」をそれぞれ押す。
 5. FXへ割り当てる場合は、左右のステート欄へAnimationClipを指定する。
 
 | プレビュー操作 | 動作 |
@@ -55,7 +55,16 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 | 高さスライダー | 高さ調整。中ボタンドラッグと同期 |
 | 焦点距離 | 初期値85mm、20～200mm |
 
-各行末尾の `10f` チェックは、指定時の値から編集値までを0～10フレーム、60fpsで記録する。オフの場合は固定表情。詳細説明はマウスオーバーでも表示する。
+各行末尾の `10f` チェックは、デフォルト表情から編集値までを0～10フレーム、60fpsで記録する。オフの場合は固定表情。詳細説明はマウスオーバーでも表示する。
+
+## 追加操作
+
+- 画角の「保存」「適用」で、距離・高さ・回転・焦点距離を保存／復元
+- 「デフォルト表情を指定」と「読み込み」「上書き」で、基準表情と10f記録の始点を設定
+- 「編集項目のみチェック」で、デフォルトと値が異なる表示項目だけを記録対象に
+- 「empty自動設定」で、各Handレイヤーと配下のNoneステートへ `proxy_empty` を設定（Undo対応）
+- 「クリーンアップ」で、Broken text PPtrの原因となるFX内のローカル参照切れを修復（確認・バックアップ付き）
+- 設定で日本語／英語、FA_接頭辞の有無を切り替え
 
 ## 保存先
 
@@ -81,7 +90,7 @@ Facial/
 - FXステートへの割り当てはControllerを直接編集する。共有Controllerを使う他のアバターにも反映される。
 - レイヤーやステートを自動作成せず、Transition・Parameter・Write Defaultsも変更しない。
 - BlendTree、同期レイヤー、AnimatorOverrideControllerの編集には未対応。
-- Clipの読み込みは最終時刻のBlendShape値を取得する。元のキー配置・補間をそのまま保持する機能ではない。
+- Clipの読み込みは最終時刻のBlendShape値を取得する。未収録のBlendShapeは0にする。元のキー配置・補間をそのまま保持する機能ではない。
 - プレビューは描画用の階層を作成する。PhysBone、Constraint、NDMFなどのビルド処理や特殊なシーン依存描画は再現しない。
 
 詳しくは [操作マニュアル](Documentation~/manual.md) と [トラブルシューティング](Documentation~/troubleshooting.md) を参照。
@@ -93,3 +102,5 @@ Facial/
 ## ライセンス
 
 [MIT License](LICENSE)
+
+機能・レイアウトの参考元: [VRCAvatarEditor / gatosyocora](https://github.com/gatosyocora/VRCAvatarEditor)。コードの直接引用は行っていない。
