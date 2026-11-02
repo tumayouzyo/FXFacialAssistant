@@ -1,0 +1,29 @@
+name: 不具合報告
+description: 再現手順と環境を添えて報告してください。
+title: "[Bug] "
+body:
+  - type: input
+    id: unity_version
+    attributes:
+      label: Unityのバージョン
+      placeholder: "2022.3.22f1"
+    validations:
+      required: true
+  - type: input
+    id: sdk_version
+    attributes:
+      label: VRChat SDKのバージョン
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順・期待する動作・実際の動作
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 関連するConsoleログ
+      description: 対象のエラーとスタックトレースを記載してください。
+      render: text
