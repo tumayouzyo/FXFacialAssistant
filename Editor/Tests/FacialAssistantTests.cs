@@ -54,6 +54,33 @@ namespace TY.FXFacialAssistant.Tests
         private T Track<T>(T item) where T : Object { temporaryObjects.Add(item); return item; }
 
         [Test]
+        public void EditModeRestorationPreservesEditsAndRebuildsPreview()
+        {
+            var avatar = root.AddComponent<VRCAvatarDescriptor>();
+            var session = Capture();
+            session.Shapes[0].Value = 71f;
+            session.Shapes[0].Include = false;
+            session.Shapes[0].Transition = true;
+            var window = Track(ScriptableObject.CreateInstance<FXFacialAssistantWindow>());
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var type = typeof(FXFacialAssistantWindow);
+            type.GetField("avatar", flags).SetValue(window, avatar);
+            type.GetField("session", flags).SetValue(window, session);
+            window.CreateGUI();
+            type.GetMethod("OnPlayModeChanged", flags).Invoke(window, new object[] { PlayModeStateChange.ExitingEditMode });
+            Assert.That(type.GetField("preview", flags).GetValue(window), Is.Null);
+            type.GetMethod("OnPlayModeChanged", flags).Invoke(window, new object[] { PlayModeStateChange.EnteredEditMode });
+            Assert.That(type.GetField("preview", flags).GetValue(window), Is.Not.Null);
+            Assert.That(type.GetField("session", flags).GetValue(window), Is.SameAs(session));
+            Assert.That(session.IsValid, Is.True);
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(71f));
+            Assert.That(session.Shapes[0].Include, Is.False);
+            Assert.That(session.Shapes[0].Transition, Is.True);
+            Assert.That(window.rootVisualElement.Q<UnityEditor.UIElements.ObjectField>("avatarField").value, Is.EqualTo(avatar));
+            Assert.That(window.rootVisualElement.enabledSelf, Is.True);
+        }
+
+        [Test]
         public void CleanupPreservesQuotedNamesCommentsAndBlockScalars()
         {
             var yaml = "%YAML 1.1\r\n--- !u!1102 &100\r\nAnimatorState:\r\n"
