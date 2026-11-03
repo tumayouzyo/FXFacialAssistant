@@ -10,28 +10,6 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 
 **メニュー:** `Tools > FXFacialAssistant`
 
-## できること
-
-- 元アバターの値を変更しない専用プレビューで、1メッシュのBlendShapeを編集
-- 35mm判換算の焦点距離、ズーム、高さ、Y軸回転による画角調整
-- 固定表情、または指定時の値から10フレームまでの直線補間をAnimationClipへ記録
-- 同じ画角の256×256透過PNGを、Expression Menu用のImport Settingsで保存
-- DescriptorのFX Controllerから `Left Hand` / `Right Hand` を検出し、ステートへClipを割り当て
-- SubStateMachineの折りたたみ表示と、割り当て変更のUndo
-- 編集可能なブラックリストで記録対象を初期化し、対象項目を非表示に切り替え
-- 既存Clipから選択メッシュの表情を読み込み
-
-## 対応環境
-
-| 項目 | 確認した環境 |
-| --- | --- |
-| Unity | 2022.3.22f1 |
-| VRChat SDK | Avatars 3.10.6 |
-| 描画 | Built-in Render Pipeline |
-| 利用場所 | Unity Editorのみ |
-
-先にVCCなどでAvatars SDKを導入する。SDK 3.10.6のImport Workerで確認した既知問題と対処方法は、[トラブルシューティング](Documentation~/troubleshooting.md)に記載。
-
 ## インストール
 
 1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をDL、Import。
