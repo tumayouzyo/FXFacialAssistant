@@ -48,12 +48,6 @@ namespace TY.FXFacialAssistant
             languages.Add(new Button(() => ChangeLanguage(true)) { text = "English" });
             languageGroup.Add(languages);
             general.Add(languageGroup);
-            var saveHeading = new Label("保存設定");
-            saveHeading.AddToClassList("settings-heading");
-            general.Add(saveHeading);
-            var prefix = new Toggle("保存名にFA_接頭辞を付ける") { value = FacialToolPreferences.Prefix };
-            prefix.RegisterValueChangedCallback(evt => FacialToolPreferences.Prefix = evt.newValue);
-            general.Add(prefix);
             var about = rootVisualElement.Q("aboutSettings");
             about.Add(new Label("FX Facial Assistant") { style = { unityFontStyleAndWeight = FontStyle.Bold } });
             var credit = new Label("責任者: tumayouzyo / 作成者: Codex");

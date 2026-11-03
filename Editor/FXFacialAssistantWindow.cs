@@ -165,7 +165,8 @@ namespace TY.FXFacialAssistant
             loadField.objectType = typeof(AnimationClip);
             loadField.allowSceneObjects = false;
             loadField.SetValueWithoutNotify(loadClip);
-            loadField.RegisterValueChangedCallback(evt => loadClip = evt.newValue as AnimationClip);
+            loadField.RegisterValueChangedCallback(evt => Try(() => ChangeLoadClip(evt.newValue as AnimationClip)));
+            Button("clearClipButton", ClearLoadClip);
             Button("loadClipButton", LoadAnimation);
             var defaultField = rootVisualElement.Q<ObjectField>("defaultClipField");
             defaultField.objectType = typeof(AnimationClip);
@@ -224,7 +225,10 @@ namespace TY.FXFacialAssistant
             folderField = rootVisualElement.Q<TextField>("saveFolder");
             outputSummary = rootVisualElement.Q<Label>("outputSummary");
             Button("folderButton", ChooseFolder);
-            Button("defaultFolderButton", () => { customFolder = false; RefreshController(); });
+            Button("defaultFolderButton", ResetSaveFolder);
+            var prefixToggle = rootVisualElement.Q<Toggle>("prefixToggle");
+            prefixToggle.SetValueWithoutNotify(FacialToolPreferences.Prefix);
+            prefixToggle.RegisterValueChangedCallback(evt => FacialToolPreferences.Prefix = evt.newValue);
             saveButton = rootVisualElement.Q<Button>("saveButton");
             saveIconButton = rootVisualElement.Q<Button>("saveIconButton");
             Button("saveButton", SaveAnimation);
@@ -269,7 +273,11 @@ namespace TY.FXFacialAssistant
         {
             if (previewImage == null) return;
             if (uiEnglish != FacialToolPreferences.English) CreateGUI();
-            else UpdateOutputSummary();
+            else
+            {
+                rootVisualElement.Q<Toggle>("prefixToggle")?.SetValueWithoutNotify(FacialToolPreferences.Prefix);
+                UpdateOutputSummary();
+            }
         }
 
         private void Button(string name, Action action)
@@ -562,6 +570,31 @@ namespace TY.FXFacialAssistant
             UpdateOutputSummary();
             RequestPreview();
             ShowStatus(message, HelpBoxMessageType.Info);
+        }
+
+        private void ClearLoadClip()
+        {
+            rootVisualElement.Q<ObjectField>("loadClipField").value = null;
+        }
+
+        private void ChangeLoadClip(AnimationClip clip)
+        {
+            loadClip = clip;
+            if (!clip) return;
+            var path = AssetDatabase.GetAssetPath(clip);
+            if (string.IsNullOrEmpty(path)) return;
+            saveFolder = Path.GetDirectoryName(path).Replace('\\', '/');
+            customFolder = true;
+            folderField.SetValueWithoutNotify(saveFolder);
+            FacialToolPreferences.Prefix = false;
+            UpdateOutputSummary();
+        }
+
+        private void ResetSaveFolder()
+        {
+            customFolder = false;
+            FacialToolPreferences.Prefix = true;
+            RefreshController();
         }
 
         private void ChooseFolder()

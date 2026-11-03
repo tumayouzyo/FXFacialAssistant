@@ -32,27 +32,31 @@
       <ui:VisualElement class="row clip-toolbar">
         <uie:ObjectField name="defaultClipField" label="デフォルト表情を指定" class="grow" tooltip="未指定の場合はメッシュ指定時の値を使用します。指定したクリップにない項目は0になります。10f記録の始点にも使用します。" />
         <ui:Button name="loadDefaultButton" text="読み込み" />
-        <ui:Button name="overwriteDefaultButton" text="上書き" />
+        <ui:Button name="overwriteDefaultButton" text="保存" />
       </ui:VisualElement>
       <ui:VisualElement class="row clip-toolbar">
-        <uie:ObjectField name="loadClipField" label="アニメーション読み込み" tooltip="AnimationClipをドラッグ＆ドロップできます。" class="grow" />
+        <uie:ObjectField name="loadClipField" label="アニメーション読み込み" tooltip="AnimationClipをドラッグ＆ドロップできます。指定すると保存先をそのアニメーションのフォルダに変更し、接頭辞をオフにします。" class="grow" />
         <ui:Button name="loadClipButton" text="読み込み" />
+        <ui:Button name="clearClipButton" text="クリア" tooltip="読み込み用のアニメーション指定をNoneにします。編集中の表情・保存先・接頭辞の設定は変更しません。" />
       </ui:VisualElement>
       <ui:VisualElement class="row shape-toolbar">
-        <ui:Toggle name="allShapesToggle" label="表示項目をすべて記録" value="true" tooltip="現在表示しているBlendShapeの記録チェックを一括で切り替えます。非表示の項目は記録対象になりません。" />
+        <ui:Toggle name="allShapesToggle" label="すべてチェック" value="true" tooltip="現在表示しているBlendShapeの記録チェックを一括で切り替えます。非表示の項目は記録対象になりません。" />
         <ui:Label name="meshSummary" />
         <ui:Button name="editedOnlyButton" text="編集項目のみチェック" tooltip="デフォルト表情と値が異なる表示項目だけを記録対象にします。" />
         <ui:Button name="applyBlacklistButton" text="ブラックリスト適用" tooltip="設定に保存されたブラックリストを適用し、一致する項目の記録チェックをオフにします。他の項目のチェックと、編集中のBlendShape値は維持します。ルールの編集は上部の設定から行えます。" />
         <ui:Toggle name="hideBlacklistToggle" label="非表示" tooltip="ブラックリストに一致する項目を一覧から隠し、Animationの記録対象からも外します。オフにすると再表示しますが、記録チェックはオフのままです。BlendShapeの値とプレビューは変わりません。" />
         <ui:VisualElement class="grow" />
-        <ui:Label name="transitionHeading" text="10f" tooltip="各行の末尾チェックをオンにすると、メッシュ指定時の値から編集した表情までを0～10フレーム（60fps、約0.167秒）で直線補間して記録します。オフの場合は固定値を記録します。" class="hint transition-heading" />
+        <ui:Label name="transitionHeading" text="[10f]" tooltip="各行の末尾チェックをオンにすると、メッシュ指定時の値から編集した表情までを0～10フレーム（60fps、約0.167秒）で直線補間して記録します。オフの場合は固定値を記録します。" class="hint transition-heading" />
       </ui:VisualElement>
       <ui:ListView name="shapeList" class="shape-list grow" />
-      <ui:TextField name="animationName" label="保存名" tooltip="アニメーション・PNGの接頭辞は設定で切り替えられます。" />
+      <ui:VisualElement class="row">
+        <ui:TextField name="animationName" label="保存名" class="grow" />
+        <ui:Toggle name="prefixToggle" label="接頭辞" tooltip="オンにすると、アニメーションとPNGの保存名にFA_を付けます。オフの場合は入力した名前をそのまま使用します。" />
+      </ui:VisualElement>
       <ui:VisualElement class="row">
         <ui:TextField name="saveFolder" label="保存先" is-read-only="true" class="grow" />
         <ui:Button name="folderButton" text="フォルダ選択" />
-        <ui:Button name="defaultFolderButton" text="既定" tooltip="保存先をFX Controllerと同じ場所のFacialフォルダに戻します。" />
+        <ui:Button name="defaultFolderButton" text="既定" tooltip="保存先をFX Controllerと同じ場所のFacialフォルダに戻し、接頭辞をオンにします。" />
       </ui:VisualElement>
       <ui:Label name="outputSummary" class="hint path-label" />
       <ui:VisualElement class="row save-row">

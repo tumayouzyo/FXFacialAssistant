@@ -53,6 +53,66 @@ namespace TY.FXFacialAssistant.Tests
 
         private T Track<T>(T item) where T : Object { temporaryObjects.Add(item); return item; }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadClipUpdatesOutputAndClearPreservesEditingState(bool english)
+        {
+            var previousLanguage = FacialToolPreferences.English;
+            var previousPrefix = FacialToolPreferences.Prefix;
+            try
+            {
+                FacialToolPreferences.English = english;
+                FacialToolPreferences.Prefix = true;
+                AssetDatabase.CreateFolder("Assets", System.IO.Path.GetFileName(folder));
+                var clip = new AnimationClip();
+                AssetDatabase.CreateAsset(clip, folder + "/FA_Test.anim");
+                var avatar = root.AddComponent<VRCAvatarDescriptor>();
+                var session = Capture();
+                session.Shapes[0].Value = 71f;
+                var window = Track(ScriptableObject.CreateInstance<FXFacialAssistantWindow>());
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var type = typeof(FXFacialAssistantWindow);
+                type.GetField("avatar", flags).SetValue(window, avatar);
+                type.GetField("session", flags).SetValue(window, session);
+                window.ShowUtility();
+                window.CreateGUI();
+                var field = window.rootVisualElement.Q<UnityEditor.UIElements.ObjectField>("loadClipField");
+                var prefix = window.rootVisualElement.Q<Toggle>("prefixToggle");
+                field.value = clip;
+                Assert.That(type.GetField("saveFolder", flags).GetValue(window), Is.EqualTo(folder));
+                Assert.That(FacialToolPreferences.Prefix, Is.False);
+                Assert.That(prefix.value, Is.False);
+                type.GetMethod("ClearLoadClip", flags).Invoke(window, null);
+                Assert.That(field.value, Is.Null);
+                Assert.That(type.GetField("loadClip", flags).GetValue(window), Is.Null);
+                Assert.That(type.GetField("saveFolder", flags).GetValue(window), Is.EqualTo(folder));
+                Assert.That(FacialToolPreferences.Prefix, Is.False);
+                Assert.That(session.Shapes[0].Value, Is.EqualTo(71f));
+                type.GetMethod("ResetSaveFolder", flags).Invoke(window, null);
+                Assert.That(FacialToolPreferences.Prefix, Is.True);
+                Assert.That(prefix.value, Is.True);
+                Assert.That(type.GetField("customFolder", flags).GetValue(window), Is.False);
+                Assert.That(window.rootVisualElement.Q<Toggle>("allShapesToggle").label, Is.EqualTo(english ? "Check all" : "すべてチェック"));
+                Assert.That(window.rootVisualElement.Q<Button>("overwriteDefaultButton").text, Is.EqualTo(english ? "Save" : "保存"));
+                Assert.That(window.rootVisualElement.Q<Label>("transitionHeading").text, Is.EqualTo("[10f]"));
+                Assert.That(prefix.parent, Is.SameAs(window.rootVisualElement.Q<TextField>("animationName").parent));
+                Assert.That(prefix.tooltip, Is.Not.Empty);
+                Assert.That(window.rootVisualElement.Q<Button>("clearClipButton").tooltip, Is.Not.Empty);
+                if (english)
+                {
+                    Assert.That(prefix.label, Is.EqualTo("Prefix"));
+                    Assert.That(window.rootVisualElement.Q<Button>("clearClipButton").text, Is.EqualTo("Clear"));
+                    Assert.That(prefix.tooltip, Does.StartWith("When enabled"));
+                    Assert.That(field.tooltip, Does.StartWith("Drag and drop"));
+                }
+            }
+            finally
+            {
+                FacialToolPreferences.English = previousLanguage;
+                FacialToolPreferences.Prefix = previousPrefix;
+            }
+        }
+
         [Test]
         public void EditModeRestorationPreservesEditsAndRebuildsPreview()
         {
