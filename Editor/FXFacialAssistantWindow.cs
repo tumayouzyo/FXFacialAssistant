@@ -280,7 +280,7 @@ namespace TY.FXFacialAssistant
 
         private void ChangeAvatar(VRCAvatarDescriptor next)
         {
-            if (next == avatar) return;
+            if (next == avatar && (!next || avatar)) return;
             if (next && (EditorUtility.IsPersistent(next) || !next.gameObject.scene.IsValid()
                 || UnityEditor.SceneManagement.EditorSceneManager.IsPreviewScene(next.gameObject.scene)))
             {
@@ -660,8 +660,19 @@ namespace TY.FXFacialAssistant
         private void OnPlayModeChanged(PlayModeStateChange state)
         {
             if (state == PlayModeStateChange.ExitingEditMode) DisposePreview();
-            if (state == PlayModeStateChange.EnteredEditMode) Try(RebuildPreview);
+            if (state == PlayModeStateChange.EnteredEditMode) Try(RestoreEditMode);
             SetPlayModeAvailability();
+        }
+
+        private void RestoreEditMode()
+        {
+            if (!ReferenceEquals(avatar, null))
+                avatar = EditorUtility.InstanceIDToObject(avatar.GetInstanceID()) as VRCAvatarDescriptor;
+            session?.RestoreReferences();
+            avatarField?.SetValueWithoutNotify(avatar);
+            RefreshController();
+            BuildShapeList();
+            RebuildPreview();
         }
 
         private void SetPlayModeAvailability()

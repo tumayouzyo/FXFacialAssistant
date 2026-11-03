@@ -57,6 +57,14 @@ namespace TY.FXFacialAssistant
             return session;
         }
 
+        internal void RestoreReferences()
+        {
+            if (!ReferenceEquals(renderer, null))
+                renderer = EditorUtility.InstanceIDToObject(renderer.GetInstanceID()) as SkinnedMeshRenderer;
+            if (!ReferenceEquals(mesh, null))
+                mesh = EditorUtility.InstanceIDToObject(mesh.GetInstanceID()) as Mesh;
+        }
+
         public bool HasEdits => shapes.Any(s => s.Value != s.DefaultValue || s.Include != s.DefaultInclude || s.Transition);
 
         public int ApplyBlacklist(BlendShapeBlacklist blacklist)
