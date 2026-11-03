@@ -86,7 +86,8 @@ namespace TY.FXFacialAssistant.Tests
                 Assert.That(field.value, Is.Null);
                 Assert.That(type.GetField("loadClip", flags).GetValue(window), Is.Null);
                 Assert.That(type.GetField("saveFolder", flags).GetValue(window), Is.EqualTo(folder));
-                Assert.That(FacialToolPreferences.Prefix, Is.False);
+                Assert.That(FacialToolPreferences.Prefix, Is.True);
+                Assert.That(prefix.value, Is.True);
                 Assert.That(session.Shapes[0].Value, Is.EqualTo(71f));
                 type.GetMethod("ResetSaveFolder", flags).Invoke(window, null);
                 Assert.That(FacialToolPreferences.Prefix, Is.True);
@@ -94,7 +95,7 @@ namespace TY.FXFacialAssistant.Tests
                 Assert.That(type.GetField("customFolder", flags).GetValue(window), Is.False);
                 Assert.That(window.rootVisualElement.Q<Toggle>("allShapesToggle").label, Is.EqualTo(english ? "Check all" : "すべてチェック"));
                 Assert.That(window.rootVisualElement.Q<Button>("overwriteDefaultButton").text, Is.EqualTo(english ? "Save" : "保存"));
-                Assert.That(window.rootVisualElement.Q<Label>("transitionHeading").text, Is.EqualTo("[10f]"));
+                Assert.That(window.rootVisualElement.Q<Label>("transitionHeading").text, Is.EqualTo(english ? "Interpolation" : "補間"));
                 Assert.That(prefix.parent, Is.SameAs(window.rootVisualElement.Q<TextField>("animationName").parent));
                 Assert.That(prefix.tooltip, Is.Not.Empty);
                 Assert.That(window.rootVisualElement.Q<Button>("clearClipButton").tooltip, Is.Not.Empty);
@@ -572,6 +573,60 @@ namespace TY.FXFacialAssistant.Tests
             var session = Capture();
             foreach (var shape in session.Shapes) shape.Include = false;
             Assert.Throws<InvalidOperationException>(() => FacialAnimation.Create(session, root.transform, "Test"));
+        }
+
+        [TestCase(0f, 30f)]
+        [TestCase(0.5f, 60f)]
+        [TestCase(1f, 90f)]
+        public void ImportSamplesSelectedAnimationPosition(float position, float expected)
+        {
+            var session = Capture();
+            var clip = Track(new AnimationClip());
+            AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Smile"),
+                AnimationCurve.Linear(0f, 30f, 1f, 90f));
+            FacialAnimation.Load(clip, session, root.transform, position);
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(expected).Within(0.001));
+            Assert.That(session.Shapes[1].Value, Is.Zero);
+            Assert.That(session.Shapes[0].DefaultValue, Is.EqualTo(12f));
+            Assert.That(body.GetBlendShapeWeight(0), Is.EqualTo(12f));
+        }
+
+        [Test]
+        public void ClipPositionAppliesOnlyWhenEnabledAndHidesWhenCleared()
+        {
+            var session = Capture();
+            var clip = Track(new AnimationClip());
+            AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Smile"),
+                AnimationCurve.Linear(0f, 30f, 1f, 90f));
+            var avatar = root.AddComponent<VRCAvatarDescriptor>();
+            var window = Track(ScriptableObject.CreateInstance<FXFacialAssistantWindow>());
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var type = typeof(FXFacialAssistantWindow);
+            type.GetField("avatar", flags).SetValue(window, avatar);
+            type.GetField("session", flags).SetValue(window, session);
+            window.ShowUtility();
+            window.CreateGUI();
+            var field = window.rootVisualElement.Q<UnityEditor.UIElements.ObjectField>("loadClipField");
+            var apply = window.rootVisualElement.Q<Toggle>("applyClipToggle");
+            var slider = window.rootVisualElement.Q<Slider>("clipPositionSlider");
+            Assert.That(slider.style.display.value, Is.EqualTo(DisplayStyle.None));
+            field.value = clip;
+            Assert.That(slider.style.display.value, Is.EqualTo(DisplayStyle.Flex));
+            slider.value = 50f;
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(12f));
+            apply.value = true;
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(60f).Within(0.001));
+            slider.value = 0f;
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(30f).Within(0.001));
+            slider.value = 100f;
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(90f).Within(0.001));
+            apply.value = false;
+            slider.value = 50f;
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(90f).Within(0.001));
+            type.GetMethod("ClearLoadClip", flags).Invoke(window, null);
+            Assert.That(slider.style.display.value, Is.EqualTo(DisplayStyle.None));
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(90f).Within(0.001));
+            Assert.That(window.rootVisualElement.Q<Button>("loadClipButton"), Is.Null);
         }
 
         [Test]

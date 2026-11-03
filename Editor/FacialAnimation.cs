@@ -38,9 +38,10 @@ namespace TY.FXFacialAssistant
             }
         }
 
-        public static string Load(AnimationClip clip, FacialMeshSession session, Transform avatarRoot)
+        public static string Load(AnimationClip clip, FacialMeshSession session, Transform avatarRoot, float normalizedTime = 1f)
         {
             if (!clip) throw FacialErrors.Argument(FacialProblem.LoadClip, "読み込むAnimationClipを指定してください。");
+            var time = clip.length * Mathf.Clamp01(normalizedTime);
             var path = session.BindingPath(avatarRoot);
             var bindings = AnimationUtility.GetCurveBindings(clip);
             var imported = bindings.Where(b => b.path == path && b.type == typeof(SkinnedMeshRenderer)
@@ -57,11 +58,11 @@ namespace TY.FXFacialAssistant
             foreach (var item in imported)
             {
                 item.Shape.Include = true;
-                item.Shape.Value = item.Curve.Evaluate(clip.length);
+                item.Shape.Value = item.Curve.Evaluate(time);
                 item.Shape.Transition = item.Curve.keys.Any(k => !Mathf.Approximately(k.value, item.Shape.Value));
             }
             var ignored = bindings.Length - imported.Count + AnimationUtility.GetObjectReferenceCurveBindings(clip).Length;
-            return FacialLocalization.Format("{0}項目を最終フレームから読み込みました。", imported.Count)
+            return FacialLocalization.Format("{0}項目を{1:0.#}%の位置から読み込みました。", imported.Count, Mathf.Clamp01(normalizedTime) * 100f)
                 + (ignored > 0 ? FacialLocalization.Format(" 対象外のカーブ {0} 件は読み込んでいません。", ignored) : "")
                 + FacialLocalization.Text(" 再保存時は固定値／直線補間になります。");
         }

@@ -9,10 +9,14 @@ namespace TY.FXFacialAssistant
     internal static class FacialLocalization
     {
         private static readonly string[,] Entries = {
+            { "補間", "Interpolation" },
+            { "指定したアニメーションの参照位置を0～100%で指定します。適用がオンの場合、選択した位置のBlendShape値を反映します。", "Select a position from 0 to 100% of the animation. When Apply is enabled, apply the BlendShape values at this position." },
+            { "オンにすると、指定アニメーションの選択位置の値を反映します。オフにしても現在の編集値は維持します。", "Enable to apply values at the selected animation position. Disabling keeps the current edited values." },
+            { "{0}項目を{1:0.#}%の位置から読み込みました。", "Loaded {0} shapes at {1:0.#}% of the animation." },
             { "接頭辞", "Prefix" },
             { "クリア", "Clear" },
             { "オンにすると、アニメーションとPNGの保存名にFA_を付けます。オフの場合は入力した名前をそのまま使用します。", "When enabled, add FA_ to animation and PNG file names. Otherwise, use the entered name unchanged." },
-            { "読み込み用のアニメーション指定をNoneにします。編集中の表情・保存先・接頭辞の設定は変更しません。", "Clear the animation selection to None. Keep the current expression, output folder, and prefix setting." },
+            { "読み込み用のアニメーション指定をNoneにし、接頭辞をオンにします。編集中の表情と保存先は変更しません。", "Clear the animation selection to None and enable the prefix. Keep the current expression and output folder." },
             { "AnimationClipをドラッグ＆ドロップできます。指定すると保存先をそのアニメーションのフォルダに変更し、接頭辞をオフにします。", "Drag and drop an AnimationClip here. Selecting a clip sets its folder as the output folder and disables the prefix." },
             { "保存先をFX Controllerと同じ場所のFacialフォルダに戻し、接頭辞をオンにします。", "Reset the output folder to the Facial folder beside the FX Controller and enable the prefix." },
             { "このレイヤーと配下のSubStateMachineで、MotionがNoneのステートにSDKのproxy_emptyを設定します。既存のMotionは変更しません。Ctrl+Zで元に戻せます。", "Assign the SDK proxy_empty clip to states whose Motion is None in this layer and its nested SubStateMachines. Existing Motions are preserved. Undo with Ctrl+Z." },
@@ -33,7 +37,6 @@ namespace TY.FXFacialAssistant
             { "{0}\n\n既存のファイルを上書きしますか？", "{0}\n\nOverwrite the existing file?" },
             { "{0} / 指定時: {1}{2}", "{0} / Default: {1}{2}" },
             { "編集メッシュ: {0}\n記録対象: {1} / {2}\n表示: {3} / 非表示: {4}", "Editing mesh: {0}\nRecording: {1} / {2}\nVisible: {3} / Hidden: {4}" },
-            { "{0}項目を最終フレームから読み込みました。", "{0} shapes loaded from the final frame." },
             { " 対象外のカーブ {0} 件は読み込んでいません。", " {0} unsupported curves ignored." },
             { " 非表示のブラックリスト項目 {0} 件は記録対象から外しました。", " {0} hidden blacklist entries excluded from recording." },
             { "有効ルール: {0} 件", "Active rules: {0}" },

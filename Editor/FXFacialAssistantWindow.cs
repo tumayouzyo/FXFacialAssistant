@@ -23,6 +23,8 @@ namespace TY.FXFacialAssistant
         [SerializeField] private string saveFolder = "";
         [SerializeField] private bool customFolder;
         [SerializeField] private AnimationClip loadClip;
+        [SerializeField] private bool applyLoadedClip;
+        [SerializeField] private float clipPosition = 100f;
         [SerializeField] private AnimationClip defaultClip;
         private bool statusIsError;
         private Action failedAction;
@@ -167,7 +169,29 @@ namespace TY.FXFacialAssistant
             loadField.SetValueWithoutNotify(loadClip);
             loadField.RegisterValueChangedCallback(evt => Try(() => ChangeLoadClip(evt.newValue as AnimationClip)));
             Button("clearClipButton", ClearLoadClip);
-            Button("loadClipButton", LoadAnimation);
+            var applyToggle = rootVisualElement.Q<Toggle>("applyClipToggle");
+            applyToggle.SetValueWithoutNotify(applyLoadedClip);
+            applyToggle.RegisterValueChangedCallback(evt =>
+            {
+                applyLoadedClip = evt.newValue;
+                if (applyLoadedClip && loadClip) Try(() => ApplyLoadedAnimation(true));
+            });
+            var positionSlider = rootVisualElement.Q<Slider>("clipPositionSlider");
+            positionSlider.SetValueWithoutNotify(clipPosition);
+            positionSlider.RegisterValueChangedCallback(evt =>
+            {
+                clipPosition = Mathf.Clamp(evt.newValue, 0f, 100f);
+                positionSlider.SetValueWithoutNotify(clipPosition);
+                if (applyLoadedClip && loadClip) Try(() => ApplyLoadedAnimation(false));
+            });
+            loadField.RegisterCallback<GeometryChangedEvent>(evt =>
+            {
+                var input = loadField.Q(className: "unity-object-field__input");
+                if (input == null) return;
+                positionSlider.style.marginLeft = input.worldBound.x - positionSlider.parent.worldBound.x;
+                positionSlider.style.width = input.resolvedStyle.width;
+            });
+            UpdateClipControls();
             var defaultField = rootVisualElement.Q<ObjectField>("defaultClipField");
             defaultField.objectType = typeof(AnimationClip);
             defaultField.allowSceneObjects = false;
@@ -558,14 +582,17 @@ namespace TY.FXFacialAssistant
         private int EnforceHiddenExclusions()
             => blacklistSettings.Display == BlacklistedShapeDisplay.Hide && session != null ? session.ApplyBlacklist(blacklist) : 0;
 
-        private void LoadAnimation()
+        private void ApplyLoadedAnimation(bool updateName)
         {
             if (!avatar || session == null) throw FacialErrors.Operation(FacialProblem.Mesh, "アバターと編集メッシュを指定してください。");
-            var message = FacialAnimation.Load(loadClip, session, avatar.transform);
+            var message = FacialAnimation.Load(loadClip, session, avatar.transform, clipPosition / 100f);
             var excluded = EnforceHiddenExclusions();
             if (excluded > 0) message += FacialLocalization.Format(" 非表示のブラックリスト項目 {0} 件は記録対象から外しました。", excluded);
-            animationName = FacialToolPreferences.Prefix && loadClip.name.StartsWith("FA_", StringComparison.Ordinal) ? loadClip.name.Substring(3) : loadClip.name;
-            rootVisualElement.Q<TextField>("animationName").SetValueWithoutNotify(animationName);
+            if (updateName)
+            {
+                animationName = FacialToolPreferences.Prefix && loadClip.name.StartsWith("FA_", StringComparison.Ordinal) ? loadClip.name.Substring(3) : loadClip.name;
+                rootVisualElement.Q<TextField>("animationName").SetValueWithoutNotify(animationName);
+            }
             BuildShapeList();
             UpdateOutputSummary();
             RequestPreview();
@@ -575,11 +602,13 @@ namespace TY.FXFacialAssistant
         private void ClearLoadClip()
         {
             rootVisualElement.Q<ObjectField>("loadClipField").value = null;
+            FacialToolPreferences.Prefix = true;
         }
 
         private void ChangeLoadClip(AnimationClip clip)
         {
             loadClip = clip;
+            UpdateClipControls();
             if (!clip) return;
             var path = AssetDatabase.GetAssetPath(clip);
             if (string.IsNullOrEmpty(path)) return;
@@ -588,6 +617,13 @@ namespace TY.FXFacialAssistant
             folderField.SetValueWithoutNotify(saveFolder);
             FacialToolPreferences.Prefix = false;
             UpdateOutputSummary();
+            if (applyLoadedClip) ApplyLoadedAnimation(true);
+        }
+
+        private void UpdateClipControls()
+        {
+            rootVisualElement.Q<Slider>("clipPositionSlider").style.display = loadClip ? DisplayStyle.Flex : DisplayStyle.None;
+            rootVisualElement.Q<Toggle>("applyClipToggle").SetEnabled(loadClip);
         }
 
         private void ResetSaveFolder()

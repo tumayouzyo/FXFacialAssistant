@@ -34,10 +34,13 @@
         <ui:Button name="loadDefaultButton" text="読み込み" />
         <ui:Button name="overwriteDefaultButton" text="保存" />
       </ui:VisualElement>
-      <ui:VisualElement class="row clip-toolbar">
-        <uie:ObjectField name="loadClipField" label="アニメーション読み込み" tooltip="AnimationClipをドラッグ＆ドロップできます。指定すると保存先をそのアニメーションのフォルダに変更し、接頭辞をオフにします。" class="grow" />
-        <ui:Button name="loadClipButton" text="読み込み" />
-        <ui:Button name="clearClipButton" text="クリア" tooltip="読み込み用のアニメーション指定をNoneにします。編集中の表情・保存先・接頭辞の設定は変更しません。" />
+      <ui:VisualElement name="loadClipRow" class="row clip-toolbar">
+        <ui:VisualElement class="grow">
+          <uie:ObjectField name="loadClipField" label="アニメーション読み込み" tooltip="AnimationClipをドラッグ＆ドロップできます。指定すると保存先をそのアニメーションのフォルダに変更し、接頭辞をオフにします。" />
+          <ui:Slider name="clipPositionSlider" low-value="0" high-value="100" show-input-field="true" tooltip="指定したアニメーションの参照位置を0～100%で指定します。適用がオンの場合、選択した位置のBlendShape値を反映します。" />
+        </ui:VisualElement>
+        <ui:Toggle name="applyClipToggle" label="適用" tooltip="オンにすると、指定アニメーションの選択位置の値を反映します。オフにしても現在の編集値は維持します。" />
+        <ui:Button name="clearClipButton" text="クリア" tooltip="読み込み用のアニメーション指定をNoneにし、接頭辞をオンにします。編集中の表情と保存先は変更しません。" />
       </ui:VisualElement>
       <ui:VisualElement class="row shape-toolbar">
         <ui:Toggle name="allShapesToggle" label="すべてチェック" value="true" tooltip="現在表示しているBlendShapeの記録チェックを一括で切り替えます。非表示の項目は記録対象になりません。" />
@@ -46,7 +49,7 @@
         <ui:Button name="applyBlacklistButton" text="ブラックリスト適用" tooltip="設定に保存されたブラックリストを適用し、一致する項目の記録チェックをオフにします。他の項目のチェックと、編集中のBlendShape値は維持します。ルールの編集は上部の設定から行えます。" />
         <ui:Toggle name="hideBlacklistToggle" label="非表示" tooltip="ブラックリストに一致する項目を一覧から隠し、Animationの記録対象からも外します。オフにすると再表示しますが、記録チェックはオフのままです。BlendShapeの値とプレビューは変わりません。" />
         <ui:VisualElement class="grow" />
-        <ui:Label name="transitionHeading" text="[10f]" tooltip="各行の末尾チェックをオンにすると、メッシュ指定時の値から編集した表情までを0～10フレーム（60fps、約0.167秒）で直線補間して記録します。オフの場合は固定値を記録します。" class="hint transition-heading" />
+        <ui:Label name="transitionHeading" text="補間" tooltip="各行の末尾チェックをオンにすると、メッシュ指定時の値から編集した表情までを0～10フレーム（60fps、約0.167秒）で直線補間して記録します。オフの場合は固定値を記録します。" class="hint transition-heading" />
       </ui:VisualElement>
       <ui:ListView name="shapeList" class="shape-list grow" />
       <ui:VisualElement class="row">
