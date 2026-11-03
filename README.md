@@ -37,7 +37,7 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をDL、Import。
 2. `Tools > FXFacialAssistant` を開く。
 
-インポート先は `Assets/TY_FXFacialAssistant` 。
+インポート先は `Assets/TY_FXFacialAssistant` 。`git clone`でも。
 
 ## 基本操作
 
