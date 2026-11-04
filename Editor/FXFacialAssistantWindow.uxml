@@ -54,7 +54,7 @@
       <ui:ListView name="shapeList" class="shape-list grow" />
       <ui:VisualElement class="row">
         <ui:TextField name="animationName" label="保存名" class="grow" />
-        <ui:Toggle name="prefixToggle" label="接頭辞" tooltip="オンにすると、アニメーションとPNGの保存名にFA_を付けます。オフの場合は入力した名前をそのまま使用します。" />
+        <ui:Toggle name="prefixToggle" label="接頭辞" tooltip="オンにすると、設定で指定した接頭辞をアニメーションとPNGの保存名に付けます。" />
       </ui:VisualElement>
       <ui:VisualElement class="row">
         <ui:TextField name="saveFolder" label="保存先" is-read-only="true" class="grow" />

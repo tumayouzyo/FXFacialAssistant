@@ -3,17 +3,26 @@
   <ui:VisualElement class="settings-root">
     <ui:ScrollView name="settingsContent" class="settings-content">
     <ui:VisualElement name="generalSettings" class="settings-section" />
-    <ui:Foldout name="blacklistSection" text="記録対象のブラックリスト" value="false" class="settings-section">
-    <ui:Label text="表示の切り替えと再適用は、メインウィンドウのメッシュ一覧上にある「非表示」「ブラックリスト適用」から行えます。" class="settings-description" />
-    <ui:Label text="1行に1つずつルールを入力してください。大文字・小文字は区別しません。* は任意の文字列、? は任意の1文字に一致します。空行と # で始まる行は無視します。" class="settings-description" />
-    <ui:Label text="例：vrc.* は前方一致、eyeBlinkLeft は名前全体との一致です。" class="settings-description" />
-    <ui:ScrollView class="rules-scroll">
-      <ui:TextField name="rulesText" multiline="true" class="rules-editor" />
-    </ui:ScrollView>
-    <ui:Label name="matchSummary" class="settings-description" />
-    <ui:Label text="適用すると、現在のメッシュで一致する項目もオフになります。ルールから外した項目のチェックは維持します。全体を初期化するにはアバターを再読み込みしてください。設定はこのプロジェクト用として保存します。" class="settings-description" />
-    <ui:Button name="defaultsButton" text="初期ルールに戻す" class="defaults-button" />
-    </ui:Foldout>
+    <ui:VisualElement class="settings-section">
+      <ui:Label text="ファイル名" class="settings-heading" />
+      <ui:TextField name="prefixText" label="接頭辞" tooltip="アニメーションとPNGに共通で使用する接頭辞です。初期値はFA_です。" />
+      <ui:Label text="保存名欄の「接頭辞」をオンにすると、ここで指定した文字を先頭に付けます。" class="settings-description" />
+      <ui:HelpBox name="prefixError" message-type="Error" />
+    </ui:VisualElement>
+    <ui:VisualElement class="settings-section">
+      <ui:Label text="ブラックリスト" class="settings-heading" />
+      <ui:Foldout name="blacklistSection" text="BlendShapeの記録ルール（ブラックリスト）" value="false">
+      <ui:Label text="表示の切り替えと再適用は、メインウィンドウのメッシュ一覧上にある「非表示」「ブラックリスト適用」から行えます。" class="settings-description" />
+      <ui:Label text="1行に1つずつルールを入力してください。大文字・小文字は区別しません。* は任意の文字列、? は任意の1文字に一致します。空行と # で始まる行は無視します。" class="settings-description" />
+      <ui:Label text="例：vrc.* は前方一致、eyeBlinkLeft は名前全体との一致です。" class="settings-description" />
+      <ui:ScrollView class="rules-scroll">
+        <ui:TextField name="rulesText" multiline="true" class="rules-editor" />
+      </ui:ScrollView>
+      <ui:Label name="matchSummary" class="settings-description" />
+      <ui:Label text="適用すると、現在のメッシュで一致する項目もオフになります。ルールから外した項目のチェックは維持します。全体を初期化するにはアバターを再読み込みしてください。設定はこのプロジェクト用として保存します。" class="settings-description" />
+      <ui:Button name="defaultsButton" text="初期ルールに戻す" class="defaults-button" />
+      </ui:Foldout>
+    </ui:VisualElement>
     </ui:ScrollView>
     <ui:VisualElement name="aboutSettings" class="settings-footer" />
     <ui:VisualElement class="settings-actions">

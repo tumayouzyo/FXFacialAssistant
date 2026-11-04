@@ -13,18 +13,21 @@ namespace TY.FXFacialAssistant
         public string IconPath { get; }
         public string ClipName => Path.GetFileNameWithoutExtension(ClipPath);
 
-        public FacialSavePaths(string folder, string inputName, bool prefix = true)
+        public FacialSavePaths(string folder, string inputName, bool prefix = true, string prefixText = FacialToolPreferences.DefaultPrefix)
         {
             FacialAssetWriter.ValidateFolder(folder);
-            var name = NormalizeName(inputName, prefix);
-            ClipPath = folder + "/" + (prefix ? "FA_" : "") + name + ".anim";
-            IconPath = folder + "/" + (prefix ? "FA_" : "") + name + ".png";
+            var name = NormalizeName(inputName, prefix, prefixText);
+            ClipPath = folder + "/" + (prefix ? prefixText : "") + name + ".anim";
+            IconPath = folder + "/" + (prefix ? prefixText : "") + name + ".png";
         }
 
-        internal static string NormalizeName(string input, bool stripPrefix = true)
+        internal static string RemovePrefix(string name, string prefix)
+            => name.StartsWith(prefix, StringComparison.Ordinal) ? name.Substring(prefix.Length) : name;
+
+        internal static string NormalizeName(string input, bool stripPrefix = true, string prefixText = FacialToolPreferences.DefaultPrefix)
         {
             var name = (input ?? "").Trim();
-            if (stripPrefix && name.StartsWith("FA_", StringComparison.Ordinal)) name = name.Substring(3);
+            if (stripPrefix) name = RemovePrefix(name, prefixText);
             if (string.IsNullOrWhiteSpace(name) || name.EndsWith(".", StringComparison.Ordinal)
                 || name.IndexOfAny("<>:\"/\\|?*".ToCharArray()) >= 0 || name.Any(char.IsControl))
                 throw FacialErrors.Argument(FacialProblem.SaveName, "保存名を入力してください。ファイル名に使えない文字や末尾のピリオドは使用できません。");

@@ -590,7 +590,8 @@ namespace TY.FXFacialAssistant
             if (excluded > 0) message += FacialLocalization.Format(" 非表示のブラックリスト項目 {0} 件は記録対象から外しました。", excluded);
             if (updateName)
             {
-                animationName = FacialToolPreferences.Prefix && loadClip.name.StartsWith("FA_", StringComparison.Ordinal) ? loadClip.name.Substring(3) : loadClip.name;
+                animationName = FacialToolPreferences.Prefix
+                    ? FacialSavePaths.RemovePrefix(loadClip.name, FacialToolPreferences.PrefixText) : loadClip.name;
                 rootVisualElement.Q<TextField>("animationName").SetValueWithoutNotify(animationName);
             }
             BuildShapeList();
@@ -649,16 +650,16 @@ namespace TY.FXFacialAssistant
             if (outputSummary == null) return;
             try
             {
-                var paths = new FacialSavePaths(saveFolder, animationName, FacialToolPreferences.Prefix);
+                var paths = new FacialSavePaths(saveFolder, animationName, FacialToolPreferences.Prefix, FacialToolPreferences.PrefixText);
                 outputSummary.text = paths.ClipPath + "  /  " + Path.GetFileName(paths.IconPath) + "（256×256 PNG）";
             }
-            catch (ArgumentException) { outputSummary.text = FacialLocalization.Text("FA_保存名.anim と FA_保存名.png を同じフォルダへ保存します。"); }
+            catch (ArgumentException) { outputSummary.text = FacialLocalization.Text("アニメーションとPNGを同じフォルダに保存します。"); }
         }
 
         private FacialSavePaths GetSavePaths()
         {
             if (!customFolder) RefreshController();
-            return new FacialSavePaths(saveFolder, animationName, FacialToolPreferences.Prefix);
+            return new FacialSavePaths(saveFolder, animationName, FacialToolPreferences.Prefix, FacialToolPreferences.PrefixText);
         }
 
         private static bool ConfirmOverwrite(string path)
@@ -785,7 +786,7 @@ namespace TY.FXFacialAssistant
                 case FacialProblem.SaveFolder:
                     return () =>
                     {
-                        try { _ = new FacialSavePaths(saveFolder, animationName, FacialToolPreferences.Prefix); return true; }
+                        try { _ = new FacialSavePaths(saveFolder, animationName, FacialToolPreferences.Prefix, FacialToolPreferences.PrefixText); return true; }
                         catch (ArgumentException) { return false; }
                     };
                 case FacialProblem.LoadClip: return () => loadClip;

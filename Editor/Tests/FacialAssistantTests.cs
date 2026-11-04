@@ -103,7 +103,7 @@ namespace TY.FXFacialAssistant.Tests
                 {
                     Assert.That(prefix.label, Is.EqualTo("Prefix"));
                     Assert.That(window.rootVisualElement.Q<Button>("clearClipButton").text, Is.EqualTo("Clear"));
-                    Assert.That(prefix.tooltip, Does.StartWith("When enabled"));
+                    Assert.That(prefix.tooltip, Does.StartWith("Add the prefix"));
                     Assert.That(field.tooltip, Does.StartWith("Drag and drop"));
                 }
             }

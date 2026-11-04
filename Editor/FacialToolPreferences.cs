@@ -13,6 +13,18 @@ namespace TY.FXFacialAssistant
             get => EditorPrefs.GetBool(Key + ".English", false);
             set { EditorPrefs.SetBool(Key + ".English", value); Changed?.Invoke(); }
         }
+        internal const string DefaultPrefix = "FA_";
+
+        public static string PrefixText
+        {
+            get => EditorPrefs.GetString(Key + ".PrefixText", DefaultPrefix);
+            set
+            {
+                EditorPrefs.SetString(Key + ".PrefixText", value);
+                Changed?.Invoke();
+            }
+        }
+
         public static bool Prefix
         {
             get => EditorPrefs.GetBool(Key + ".Prefix", true);

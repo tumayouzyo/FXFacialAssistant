@@ -12,6 +12,7 @@ namespace TY.FXFacialAssistant
         [SerializeField] private FacialBlacklistSettings draft;
         [SerializeField] private List<string> shapeNames = new List<string>();
         private Label matchSummary;
+        [SerializeField] private string prefixDraft;
 
         public static void Open(IEnumerable<string> names)
         {
@@ -25,6 +26,7 @@ namespace TY.FXFacialAssistant
         {
             minSize = new Vector2(580f, 560f);
             if (draft == null) draft = FacialBlacklistPreferences.Load();
+            if (prefixDraft == null) prefixDraft = FacialToolPreferences.PrefixText;
         }
 
         public void CreateGUI()
@@ -74,6 +76,16 @@ namespace TY.FXFacialAssistant
             reference.AddToClassList("settings-description");
             detailsScroll.Add(reference);
             detailsScroll.Add(new Button(() => Application.OpenURL("https://github.com/gatosyocora/VRCAvatarEditor")) { text = "VRCAvatarEditor / gatosyocora" });
+            var prefix = rootVisualElement.Q<TextField>("prefixText");
+            prefix.SetValueWithoutNotify(prefixDraft);
+            var prefixError = rootVisualElement.Q<HelpBox>("prefixError");
+            prefixError.style.display = DisplayStyle.None;
+            prefix.RegisterValueChangedCallback(evt =>
+            {
+                if (evt.target != prefix) return;
+                prefixDraft = evt.newValue;
+                prefixError.style.display = DisplayStyle.None;
+            });
             var rules = rootVisualElement.Q<TextField>("rulesText");
             rules.SetValueWithoutNotify(draft.Rules);
             rules.RegisterValueChangedCallback(evt =>
@@ -87,9 +99,18 @@ namespace TY.FXFacialAssistant
             rootVisualElement.Q<Button>("cancelButton").clicked += Close;
             rootVisualElement.Q<Button>("applyButton").clicked += () =>
             {
+                string validatedPrefix;
+                try { validatedPrefix = FacialSavePaths.NormalizeName(prefixDraft, false); }
+                catch (System.ArgumentException)
+                {
+                    prefixError.text = FacialLocalization.Text("接頭辞にはファイル名に使える文字を1～100文字入力してください。末尾にピリオドは使えません。");
+                    prefixError.style.display = DisplayStyle.Flex;
+                    return;
+                }
                 var settings = FacialBlacklistPreferences.Load();
                 settings.Rules = draft.Rules;
                 FacialBlacklistPreferences.Save(settings);
+                FacialToolPreferences.PrefixText = validatedPrefix;
                 Close();
             };
             RefreshSummary();
