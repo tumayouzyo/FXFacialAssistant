@@ -44,25 +44,34 @@ namespace TY.FXFacialAssistant
             var time = clip.length * Mathf.Clamp01(normalizedTime);
             var path = session.BindingPath(avatarRoot);
             var bindings = AnimationUtility.GetCurveBindings(clip);
-            var imported = bindings.Where(b => b.path == path && b.type == typeof(SkinnedMeshRenderer)
-                    && b.propertyName.StartsWith("blendShape.", StringComparison.Ordinal))
-                .Select(b => new { Shape = session.Shapes.FirstOrDefault(s => "blendShape." + s.Name == b.propertyName),
-                    Curve = AnimationUtility.GetEditorCurve(clip, b) })
-                .Where(item => item.Shape != null && item.Curve != null && item.Curve.length > 0).ToList();
+            var shapesByProperty = session.Shapes.ToLookup(shape => "blendShape." + shape.Name, StringComparer.Ordinal);
             foreach (var shape in session.Shapes)
             {
                 shape.Include = false;
                 shape.Value = 0f;
                 shape.Transition = false;
             }
-            foreach (var item in imported)
+            var imported = 0;
+            foreach (var binding in bindings)
             {
-                item.Shape.Include = true;
-                item.Shape.Value = item.Curve.Evaluate(time);
-                item.Shape.Transition = item.Curve.keys.Any(k => !Mathf.Approximately(k.value, item.Shape.Value));
+                if (binding.path != path || binding.type != typeof(SkinnedMeshRenderer)) continue;
+                var shape = shapesByProperty[binding.propertyName].FirstOrDefault();
+                if (shape == null) continue;
+                var curve = AnimationUtility.GetEditorCurve(clip, binding);
+                if (curve == null || curve.length == 0) continue;
+
+                shape.Include = true;
+                shape.Value = curve.Evaluate(time);
+                for (var i = 0; i < curve.length; i++)
+                {
+                    if (Mathf.Approximately(curve[i].value, shape.Value)) continue;
+                    shape.Transition = true;
+                    break;
+                }
+                imported++;
             }
-            var ignored = bindings.Length - imported.Count + AnimationUtility.GetObjectReferenceCurveBindings(clip).Length;
-            return FacialLocalization.Format("{0}項目を{1:0.#}%の位置から読み込みました。", imported.Count, Mathf.Clamp01(normalizedTime) * 100f)
+            var ignored = bindings.Length - imported + AnimationUtility.GetObjectReferenceCurveBindings(clip).Length;
+            return FacialLocalization.Format("{0}項目を{1:0.#}%の位置から読み込みました。", imported, Mathf.Clamp01(normalizedTime) * 100f)
                 + (ignored > 0 ? FacialLocalization.Format(" 対象外のカーブ {0} 件は読み込んでいません。", ignored) : "")
                 + FacialLocalization.Text(" 再保存時は固定値／直線補間になります。");
         }
