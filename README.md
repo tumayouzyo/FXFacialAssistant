@@ -12,10 +12,24 @@ VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animati
 
 ## インストール
 
+### VCC
+
+1. [T_Y_Tools](https://tumayouzyo.github.io/vpm-repository/) の「VCCに追加」からリポジトリを登録する。
+2. 対象プロジェクトのManage Projectから `FX Facial Assistant` を追加する。
+3. `Tools > FXFacialAssistant` を開く。
+
+VCC登録URL: `https://tumayouzyo.github.io/vpm-repository/index.json`
+
+旧Unitypackage版から移行する場合は、事前にプロジェクトをバックアップする。
+VPMの移行処理は `Assets/TY_FXFacialAssistant/Editor` を削除してパッケージ版へ置き換える。Editor内の独自追加・変更も削除対象になる。親フォルダに保存したアニメーションや画像は対象外。
+旧版を別の場所へ移動している場合は、そのEditorフォルダを手動で取り除き、二重導入を避ける。
+
+### Unitypackage
+
 1. [Releases](https://github.com/tumayouzyo/FXFacialAssistant/releases/latest) から最新の `FXFacialAssistant_*.unitypackage` をDL、Import。
 2. `Tools > FXFacialAssistant` を開く。
 
-インポート先は `Assets/TY_FXFacialAssistant` 。このディレクトリ用意して`git clone`でも。
+インポート先は `Assets/TY_FXFacialAssistant` 。VPM版との併用は避ける。
 
 ## 基本操作
 
