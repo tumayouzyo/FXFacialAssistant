@@ -3,12 +3,12 @@
 ![VRChat](https://img.shields.io/badge/VRChat-Avatars_3.0-19b9e7)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**責任者:** [tumayouzyo](https://github.com/tumayouzyo)  
-**作成者:** Codex
+責任者: [tumayouzyo](https://github.com/tumayouzyo)  
+作成者: Codex
 
 VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animationと透過アイコンを作成するUnity Editor拡張。AI slop。
 
-**メニュー:** `Tools > FXFacialAssistant`
+メニュー: `Tools > FXFacialAssistant`
 
 ## インストール
 
@@ -70,7 +70,7 @@ Facial/
 
 ## ブラックリスト
 
-初期ルールは `vrc.*`、`vrm.*`、`ex_*` と、ARKit・VRCFTの標準名など。**大文字・小文字は区別しない。**
+初期ルールは `vrc.*`、`vrm.*`、`ex_*` と、ARKit・VRCFTの標準名など。大文字・小文字は区別しない。
 
 - 上部の「設定」で、1行ごとのルールを追加・削除
 - `*` は任意の文字列、`?` は任意の1文字に一致
