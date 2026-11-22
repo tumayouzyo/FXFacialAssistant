@@ -6,7 +6,7 @@
 **責任者:** [tumayouzyo](https://github.com/tumayouzyo)  
 **作成者:** Codex
 
-VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animationと透過アイコンを作成するUnity Editor拡張。
+VRChatアバターの表情を見ながらBlendShapeを調整し、表情Animationと透過アイコンを作成するUnity Editor拡張。AI slop。
 
 **メニュー:** `Tools > FXFacialAssistant`
 
