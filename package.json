@@ -1,11 +1,11 @@
 {
   "name": "io.github.tumayouzyo.fx-facial-assistant",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "displayName": "FX Facial Assistant",
   "description": "VRChat avatar facial-expression editor with isolated BlendShape preview, AnimationClip export, transparent menu icons, and FX state assignment.",
   "unity": "2022.3",
   "license": "MIT",
-  "url": "https://github.com/tumayouzyo/FXFacialAssistant/releases/download/v0.1.4/io.github.tumayouzyo.fx-facial-assistant-0.1.4.zip",
+  "url": "https://github.com/tumayouzyo/FXFacialAssistant/releases/download/v0.1.5/io.github.tumayouzyo.fx-facial-assistant-0.1.5.zip",
   "changelogUrl": "https://github.com/tumayouzyo/FXFacialAssistant/blob/main/CHANGELOG.md",
   "vpmDependencies": {
     "com.vrchat.avatars": "3.10.x"
