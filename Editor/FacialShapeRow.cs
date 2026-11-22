@@ -65,8 +65,9 @@ namespace TY.FXFacialAssistant
         {
             if (shape == null) return;
             if (float.IsNaN(value) || float.IsInfinity(value)) { number.SetValueWithoutNotify(shape.Value); return; }
+            value = Mathf.Clamp(value, 0f, 100f);
             shape.Value = value;
-            slider.SetValueWithoutNotify(Mathf.Clamp(value, 0f, 100f));
+            slider.SetValueWithoutNotify(value);
             number.SetValueWithoutNotify(value);
             previewChanged();
         }

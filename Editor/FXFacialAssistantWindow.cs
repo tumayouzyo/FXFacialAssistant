@@ -262,18 +262,21 @@ namespace TY.FXFacialAssistant
             Try(() =>
             {
                 RefreshController();
-                if (avatar)
+                if (avatar && (session == null || !session.IsValid))
                 {
-                    if (session == null || !session.IsValid)
-                    {
-                        var body = FacialMeshSession.FindBody(avatar.gameObject);
-                        session = body ? FacialMeshSession.Capture(body, avatar.transform, blacklist) : null;
-                        DisposePreview();
-                    }
-                    if (preview == null) RebuildPreview();
-                    else RequestPreview();
+                    var body = FacialMeshSession.FindBody(avatar.gameObject);
+                    session = body ? FacialMeshSession.Capture(body, avatar.transform, blacklist) : null;
+                    RefreshSession();
                 }
-                BuildShapeList();
+                else
+                {
+                    if (avatar)
+                    {
+                        if (preview == null) RebuildPreview();
+                        else RequestPreview();
+                    }
+                    BuildShapeList();
+                }
             });
             previewImage.RegisterCallback<GeometryChangedEvent>(evt => previewDirty = true);
             SetPlayModeAvailability();
@@ -332,8 +335,7 @@ namespace TY.FXFacialAssistant
             customFolder = false;
             saveFolder = "";
             RefreshController();
-            RebuildPreview();
-            BuildShapeList();
+            RefreshSession();
             if (avatar && session == null) ShowStatus("BlendShapeを持つBodyが見つかりません。編集メッシュを指定してください。", HelpBoxMessageType.Info);
         }
 
@@ -346,8 +348,7 @@ namespace TY.FXFacialAssistant
                 var captured = next ? FacialMeshSession.Capture(next, avatar.transform, blacklist) : null;
                 if (!ConfirmDiscard()) return;
                 session = captured;
-                RebuildPreview();
-                BuildShapeList();
+                RefreshSession();
             }
             finally { meshField.SetValueWithoutNotify(session?.Renderer); }
         }
@@ -363,8 +364,14 @@ namespace TY.FXFacialAssistant
             }
             else session = null;
             RefreshController();
+            RefreshSession();
+        }
+
+        private void RefreshSession()
+        {
             RebuildPreview();
-            BuildShapeList();
+            if (applyLoadedClip && loadClip && avatar && session != null) ApplyLoadedAnimation(false);
+            else BuildShapeList();
         }
 
         private void RebuildPreview()
@@ -724,7 +731,16 @@ namespace TY.FXFacialAssistant
 
         private void OnUndoRedo()
         {
-            if (rootVisualElement.Q("leftLayer") != null) BuildLayers();
+            if (rootVisualElement.Q("leftLayer") == null) return;
+            Try(() =>
+            {
+                BuildLayers();
+                if (avatar && session != null && session.IsValid)
+                {
+                    FacialAnimation.SetDefault(defaultClip, session, avatar.transform, false);
+                    BuildShapeList();
+                }
+            });
         }
 
         private void OnPlayModeChanged(PlayModeStateChange state)

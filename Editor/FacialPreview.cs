@@ -27,6 +27,7 @@ namespace TY.FXFacialAssistant
         private readonly Dictionary<SkinnedMeshRenderer, SkinnedMeshRenderer> renderers
             = new Dictionary<SkinnedMeshRenderer, SkinnedMeshRenderer>();
         private readonly Dictionary<SkinnedMeshRenderer, Mesh> bakedMeshes = new Dictionary<SkinnedMeshRenderer, Mesh>();
+        private readonly Dictionary<Renderer, Renderer> visibleRenderers = new Dictionary<Renderer, Renderer>();
         private readonly GameObject root;
         private readonly Vector3 headPosition;
         private readonly float scale;
@@ -45,6 +46,7 @@ namespace TY.FXFacialAssistant
                 transforms.Add(avatar.transform, root.transform);
                 foreach (Transform child in avatar.transform) CopyTransform(child, root.transform);
                 CopyRenderers(avatar.gameObject);
+                CopyLodGroups(avatar.gameObject);
                 var animator = avatar.GetComponent<Animator>();
                 var head = animator && animator.isHuman ? animator.GetBoneTransform(HumanBodyBones.Head) : null;
                 if (head && transforms.TryGetValue(head, out var previewHead))
@@ -105,6 +107,7 @@ namespace TY.FXFacialAssistant
                     copy.SetBlendShapeWeight(i, source.GetBlendShapeWeight(i));
                 CopyRendererProperties(source, copy);
                 renderers.Add(source, copy);
+                visibleRenderers.Add(source, copy);
                 if (!source.enabled || !source.gameObject.activeInHierarchy || source.forceRenderingOff)
                 {
                     copy.forceRenderingOff = true;
@@ -118,7 +121,9 @@ namespace TY.FXFacialAssistant
                 var surface = new GameObject("Facial preview surface") { hideFlags = HideFlags.HideAndDontSave };
                 surface.transform.SetParent(copy.transform, false);
                 surface.AddComponent<MeshFilter>().sharedMesh = baked;
-                CopyRendererProperties(copy, surface.AddComponent<MeshRenderer>());
+                var surfaceRenderer = surface.AddComponent<MeshRenderer>();
+                CopyRendererProperties(copy, surfaceRenderer);
+                visibleRenderers[source] = surfaceRenderer;
                 copy.forceRenderingOff = true;
             }
             foreach (var source in avatar.GetComponentsInChildren<MeshRenderer>(true))
@@ -127,7 +132,28 @@ namespace TY.FXFacialAssistant
                 if (!filter || !filter.sharedMesh) continue;
                 var go = transforms[source.transform].gameObject;
                 go.AddComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
-                CopyRendererProperties(source, go.AddComponent<MeshRenderer>());
+                var copy = go.AddComponent<MeshRenderer>();
+                CopyRendererProperties(source, copy);
+                visibleRenderers.Add(source, copy);
+            }
+        }
+
+        private void CopyLodGroups(GameObject avatar)
+        {
+            foreach (var source in avatar.GetComponentsInChildren<LODGroup>(true))
+            {
+                var copy = transforms[source.transform].gameObject.AddComponent<LODGroup>();
+                copy.SetLODs(source.GetLODs().Select(lod =>
+                {
+                    lod.renderers = lod.renderers.Select(renderer => renderer && visibleRenderers.TryGetValue(renderer, out var target)
+                        ? target : null).Where(renderer => renderer != null).ToArray();
+                    return lod;
+                }).ToArray());
+                copy.localReferencePoint = source.localReferencePoint;
+                copy.size = source.size;
+                copy.fadeMode = source.fadeMode;
+                copy.animateCrossFading = source.animateCrossFading;
+                copy.enabled = source.enabled;
             }
         }
 

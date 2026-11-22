@@ -51,6 +51,160 @@ namespace TY.FXFacialAssistant.Tests
 
         private FacialMeshSession Capture() => FacialMeshSession.Capture(body, root.transform);
 
+        [TestCase(-20f, 0f)]
+        [TestCase(150f, 100f)]
+        [TestCase(45f, 45f)]
+        public void ManualShapeInputKeepsRecordedValueAndSliderInRange(float input, float expected)
+        {
+            var session = Capture();
+            var row = new FacialShapeRow(() => { }, () => { });
+            row.Bind(session.Shapes[0], false);
+            var window = Track(ScriptableObject.CreateInstance<FXFacialAssistantWindow>());
+            window.ShowUtility();
+            window.rootVisualElement.Add(row);
+            row.Q<FloatField>().value = input;
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(expected));
+            Assert.That(row.Q<Slider>().value, Is.EqualTo(expected));
+            Assert.That(row.Q<FloatField>().value, Is.EqualTo(expected));
+            var clip = Track(FacialAnimation.Create(session, root.transform, "Range"));
+            var curve = AnimationUtility.GetEditorCurve(clip,
+                EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Smile"));
+            Assert.That(curve.Evaluate(0f), Is.EqualTo(expected));
+            Assert.That(body.GetBlendShapeWeight(0), Is.EqualTo(12f));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SelectingMeshSamplesLoadedClipOnlyWhenApplyIsEnabled(bool apply)
+        {
+            var avatar = root.AddComponent<VRCAvatarDescriptor>();
+            var clip = Track(new AnimationClip());
+            AnimationUtility.SetEditorCurve(clip,
+                EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Smile"),
+                AnimationCurve.Linear(0f, 30f, 1f, 90f));
+            var window = Track(ScriptableObject.CreateInstance<FXFacialAssistantWindow>());
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var type = typeof(FXFacialAssistantWindow);
+            type.GetField("avatar", flags).SetValue(window, avatar);
+            type.GetField("loadClip", flags).SetValue(window, clip);
+            type.GetField("applyLoadedClip", flags).SetValue(window, apply);
+            type.GetField("clipPosition", flags).SetValue(window, 50f);
+            window.ShowUtility();
+            window.CreateGUI();
+            var initial = (FacialMeshSession)type.GetField("session", flags).GetValue(window);
+            Assert.That(initial.Shapes[0].Value, Is.EqualTo(apply ? 60f : 12f));
+            type.GetField("session", flags).SetValue(window, null);
+            window.rootVisualElement.Q<UnityEditor.UIElements.ObjectField>("meshField").SetValueWithoutNotify(null);
+            window.rootVisualElement.Q<UnityEditor.UIElements.ObjectField>("meshField").value = body;
+            var session = (FacialMeshSession)type.GetField("session", flags).GetValue(window);
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(apply ? 60f : 12f));
+            Assert.That(window.rootVisualElement.Q<Toggle>("applyClipToggle").value, Is.EqualTo(apply));
+            Assert.That(body.GetBlendShapeWeight(0), Is.EqualTo(12f));
+        }
+
+        [Test]
+        public void UndoAndRedoDefaultClipRefreshTransitionStartWithoutChangingExpression()
+        {
+            var avatar = root.AddComponent<VRCAvatarDescriptor>();
+            var clip = Track(new AnimationClip());
+            var binding = EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Smile");
+            AnimationUtility.SetEditorCurve(clip, binding, AnimationCurve.Constant(0f, 1f / 60f, 0f));
+            var session = Capture();
+            session.Shapes[0].Value = 80f;
+            session.Shapes[0].Transition = true;
+            var window = Track(ScriptableObject.CreateInstance<FXFacialAssistantWindow>());
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var type = typeof(FXFacialAssistantWindow);
+            type.GetField("avatar", flags).SetValue(window, avatar);
+            type.GetField("session", flags).SetValue(window, session);
+            type.GetField("defaultClip", flags).SetValue(window, clip);
+            window.ShowUtility();
+            window.CreateGUI();
+            try
+            {
+                Undo.IncrementCurrentGroup();
+                Undo.RegisterCompleteObjectUndo(clip, "Change default expression");
+                AnimationUtility.SetEditorCurve(clip, binding, AnimationCurve.Constant(0f, 1f / 60f, 50f));
+                FacialAnimation.SetDefault(clip, session, root.transform, false);
+                Undo.FlushUndoRecordObjects();
+                Undo.PerformUndo();
+                Assert.That(AnimationUtility.GetEditorCurve(clip, binding).Evaluate(0f), Is.Zero);
+                Assert.That(session.Shapes[0].DefaultValue, Is.Zero);
+                Assert.That(session.Shapes[0].Value, Is.EqualTo(80f));
+                Assert.That(session.Shapes[0].Transition, Is.True);
+                var generated = Track(FacialAnimation.Create(session, root.transform, "AfterUndo"));
+                Assert.That(AnimationUtility.GetEditorCurve(generated, binding).Evaluate(0f), Is.Zero);
+                Undo.PerformRedo();
+                Assert.That(session.Shapes[0].DefaultValue, Is.EqualTo(50f));
+                Assert.That(session.Shapes[0].Value, Is.EqualTo(80f));
+            }
+            finally { Undo.ClearUndo(clip); }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PreviewPreservesLodSelectionUsingItsVisibleBakedRenderers(bool skinnedLow)
+        {
+            var avatar = root.AddComponent<VRCAvatarDescriptor>();
+            var lowObject = new GameObject("BodyLow");
+            lowObject.transform.SetParent(root.transform, false);
+            Renderer low;
+            if (skinnedLow)
+            {
+                var skinned = lowObject.AddComponent<SkinnedMeshRenderer>();
+                skinned.sharedMesh = mesh;
+                low = skinned;
+            }
+            else
+            {
+                lowObject.AddComponent<MeshFilter>().sharedMesh = mesh;
+                low = lowObject.AddComponent<MeshRenderer>();
+            }
+            var sourceGroup = root.AddComponent<LODGroup>();
+            sourceGroup.SetLODs(new[] { new LOD(0.6f, new Renderer[] { body }), new LOD(0.1f, new Renderer[] { low }) });
+            sourceGroup.fadeMode = LODFadeMode.CrossFade;
+            sourceGroup.animateCrossFading = true;
+            sourceGroup.size = 2f;
+            using (var preview = new FacialPreview(avatar))
+            {
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var previewRoot = (GameObject)typeof(FacialPreview).GetField("root", flags).GetValue(preview);
+                var group = previewRoot.GetComponent<LODGroup>();
+                Assert.That(group, Is.Not.Null);
+                Assert.That(group.fadeMode, Is.EqualTo(sourceGroup.fadeMode));
+                Assert.That(group.animateCrossFading, Is.True);
+                Assert.That(group.size, Is.EqualTo(2f));
+                var levels = group.GetLODs();
+                Assert.That(levels.Length, Is.EqualTo(2));
+                Assert.That(levels[0].screenRelativeTransitionHeight, Is.EqualTo(0.6f));
+                Assert.That(levels[1].screenRelativeTransitionHeight, Is.EqualTo(0.1f));
+                foreach (var level in levels)
+                {
+                    var renderer = level.renderers.Single();
+                    Assert.That(renderer, Is.TypeOf<MeshRenderer>());
+                    Assert.That(renderer.transform.IsChildOf(previewRoot.transform), Is.True);
+                    Assert.That(renderer.forceRenderingOff, Is.False);
+                }
+                Assert.That(levels[0].renderers[0], Is.Not.SameAs(levels[1].renderers[0]));
+            }
+            Assert.That(sourceGroup.GetLODs()[0].renderers.Single(), Is.SameAs(body));
+            Assert.That(body.forceRenderingOff, Is.False);
+        }
+
+        [Test]
+        public void ImportPreservesAuthoredValuesOutsideManualInputRange()
+        {
+            var session = Capture();
+            var clip = Track(new AnimationClip());
+            var binding = EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Smile");
+            AnimationUtility.SetEditorCurve(clip, binding, AnimationCurve.Constant(0f, 1f, 150f));
+            FacialAnimation.Load(clip, session, root.transform);
+            Assert.That(session.Shapes[0].Value, Is.EqualTo(150f));
+            var generated = Track(FacialAnimation.Create(session, root.transform, "Imported"));
+            Assert.That(AnimationUtility.GetEditorCurve(generated, binding).Evaluate(0f), Is.EqualTo(150f));
+            Assert.That(body.GetBlendShapeWeight(0), Is.EqualTo(12f));
+        }
+
         private T Track<T>(T item) where T : Object { temporaryObjects.Add(item); return item; }
 
         [TestCase(false)]
